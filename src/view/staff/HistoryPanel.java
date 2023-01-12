@@ -1,0 +1,134 @@
+package view.staff;
+
+import java.awt.BorderLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.util.ArrayList;
+import java.util.EventObject;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.RowFilter;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
+
+import controller.login.ShareDataBetweenFrame;
+import controller.staff.HistoryPanelController;
+import dao.OrdersDao;
+import model.Orders;
+
+@SuppressWarnings("serial")
+public class HistoryPanel extends JPanel {
+	private StaffFrameView staffFrameView;
+	private JTable table;
+	private DefaultTableModel tblModel;
+	private JTextField txtFilter;
+	private ArrayList<Orders> data;
+
+	public HistoryPanel(StaffFrameView staffFrameView) {
+		this.staffFrameView = staffFrameView;
+		initComponent();
+		initTable();
+		setEvent();
+		loadDataToTable();
+	}
+
+	private void initTable() {
+		tblModel = new DefaultTableModel();
+		tblModel.setColumnIdentifiers(
+				new String[] { "Order ID", "Order Status", "Order Date", "Shipped Date", "Store ID", "Customer ID" });
+		table.setModel(tblModel);
+	}
+
+	public void loadDataToTable() {
+		OrdersDao ordersDao = new OrdersDao();
+		data = ordersDao.findAllOrderOfStaff(ShareDataBetweenFrame.staff);
+		tblModel.setRowCount(0);
+		for (Orders order : data) {
+			tblModel.addRow(new Object[] { order.getOrderId(), order.getOrderStatus(), order.getOrderDate(),
+					order.getShippedDate(), order.getStoreId(), order.getCustomerId() });
+		}
+	}
+
+	private void setEvent() {
+		HistoryPanelController historyPanelController = new HistoryPanelController(this);
+		txtFilter.getDocument().addDocumentListener(historyPanelController);
+		table.addMouseListener(historyPanelController);
+	}
+
+	private void initComponent() {
+		// component
+		Font font = new Font("Arial", Font.PLAIN, 16);
+		// Filter
+
+		JLabel lbFilter = new JLabel("FILTER");
+		lbFilter.setFont(font);
+
+		txtFilter = new JTextField();
+		txtFilter.setFont(font);
+
+		// table
+		table = new JTable() {
+			// khong cho phep Jtable duoc sua
+			public boolean editCellAt(int row, int column, EventObject e) {
+				return false;
+			}
+		};
+		table.setAutoCreateRowSorter(true);
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		JScrollPane scrollPane = new JScrollPane(table, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+		// layout
+		setLayout(new BorderLayout());
+		// Page_Start
+		JPanel panelSearch = new JPanel();
+		panelSearch.setLayout(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.anchor = GridBagConstraints.WEST;
+		panelSearch.add(lbFilter, gbc);
+
+		gbc.gridx++;
+		gbc.weightx = 1;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		panelSearch.add(txtFilter, gbc);
+
+		add(panelSearch, BorderLayout.PAGE_START);
+		// Center
+		add(scrollPane, BorderLayout.CENTER);
+	}
+
+	public void sortAndFilter(String target) {
+		TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<DefaultTableModel>(tblModel);
+		table.setRowSorter(sorter);
+
+		sorter.setRowFilter(RowFilter.regexFilter(target));
+	}
+
+	public StaffFrameView getStaffFrameView() {
+		return staffFrameView;
+	}
+
+	public JTable getTable() {
+		return table;
+	}
+
+	public DefaultTableModel getTblModel() {
+		return tblModel;
+	}
+
+	public JTextField getTxtFilter() {
+		return txtFilter;
+	}
+
+}

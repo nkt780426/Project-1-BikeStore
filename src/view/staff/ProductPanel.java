@@ -1,0 +1,170 @@
+package view.staff;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.Insets;
+import java.io.IOException;
+
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.border.LineBorder;
+
+import controller.staff.ProductPanelController;
+import dao.ProductsDao;
+import help.ImageAccept;
+import model.Products;
+
+@SuppressWarnings("serial")
+public class ProductPanel extends JPanel {
+	private StaffFrameView staffFrameView;
+	private Products product;
+	private byte[] productIcon;
+	private int remaining;
+	private int sold;
+
+	private JLabel lbIcon;
+
+	public ProductPanel(int[] object, StaffFrameView staffFrameView) {
+		this.staffFrameView = staffFrameView;
+		ProductsDao productsDao = new ProductsDao();
+		Products product = new Products();
+		product.setProductId(object[0]);
+		if (productsDao.findById(product)) {
+			this.product = product;
+			this.remaining = object[1];
+			this.sold = object[2];
+		}
+		setPreferredSize(new Dimension(300, 250));
+		initComponent();
+		setEvent();
+	}
+
+	private void setEvent() {
+		ProductPanelController controller = new ProductPanelController(this);
+		this.addMouseListener(controller);
+	}
+
+	private void initComponent() {
+		lbIcon = new JLabel();
+		lbIcon.setPreferredSize(new Dimension(150, 150));
+		if (product.getProductIcon() != null) {
+			productIcon = product.getProductIcon();
+			try {
+				Image img = ImageAccept.createImageFromByteArray(productIcon, "jpg");
+				Image resize = ImageAccept.resize(img, 150, 150);
+				ImageIcon icon = new ImageIcon(resize);
+				lbIcon.setIcon(icon);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		} else {
+			lbIcon.setIcon(new ImageIcon(getClass().getResource("/icon/Bicycle-icon72.png")));
+			lbIcon.setHorizontalAlignment(JLabel.CENTER);
+		}
+		Font font = new Font("Arial", Font.PLAIN, 10);
+		JLabel lbRemaining = new JLabel("Remaning: " + String.valueOf(remaining));
+		lbRemaining.setFont(font);
+		lbRemaining.setForeground(Color.RED);
+		lbRemaining.setBackground(Color.WHITE);
+		JLabel lbSold = new JLabel("Sold: " + String.valueOf(sold));
+		lbSold.setFont(font);
+		lbSold.setBackground(Color.WHITE);
+		JLabel lbPrice = new JLabel(String.valueOf(product.getListPrice()));
+		lbPrice.setFont(new Font("Arial", Font.PLAIN, 20));
+		lbPrice.setBackground(Color.WHITE);
+		JLabel lbProductName = new JLabel(product.getProductName());
+		lbProductName.setFont(new Font("Arial", Font.PLAIN, 20));
+		lbProductName.setHorizontalTextPosition(JLabel.CENTER);
+
+		// layout
+		JPanel icon = new JPanel();
+		icon.setBorder(new LineBorder(Color.BLACK));
+		icon.setLayout(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.gridwidth = 2;
+		gbc.weighty = 1;
+		gbc.weightx = 1;
+		gbc.anchor = GridBagConstraints.CENTER;
+		icon.add(lbIcon, gbc);
+
+		gbc.gridx = 0;
+		gbc.gridy = 1;
+		gbc.gridwidth = 1;
+		gbc.gridheight = 2;
+		gbc.anchor = GridBagConstraints.WEST;
+		icon.add(lbPrice, gbc);
+
+		gbc.gridx = 1;
+		gbc.gridy = 1;
+		gbc.weightx = 0;
+		gbc.gridheight = 1;
+		icon.add(lbSold, gbc);
+
+		gbc.gridy++;
+		gbc.weighty = 0;
+		gbc.anchor = GridBagConstraints.NORTH;
+		icon.add(lbRemaining, gbc);
+
+		setLayout(new GridBagLayout());
+		GridBagConstraints gbc1 = new GridBagConstraints();
+		gbc1.insets = new Insets(5, 5, 5, 5);
+
+		gbc1.gridx = 0;
+		gbc1.gridy = 0;
+		gbc1.anchor = GridBagConstraints.CENTER;
+		add(icon, gbc1);
+
+		gbc1.gridy++;
+		add(lbProductName, gbc1);
+	}
+
+	public Products getProduct() {
+		return product;
+	}
+
+	public void setProduct(Products product) {
+		this.product = product;
+	}
+
+	public byte[] getProductIcon() {
+		return productIcon;
+	}
+
+	public void setProductIcon(byte[] productIcon) {
+		this.productIcon = productIcon;
+	}
+
+	public StaffFrameView getStaffFrameView() {
+		return staffFrameView;
+	}
+
+	public int getRemaining() {
+		return remaining;
+	}
+
+	public int getSold() {
+		return sold;
+	}
+
+	public JLabel getLbIcon() {
+		return lbIcon;
+	}
+
+	public static void main(String[] args) {
+		JFrame frame = new JFrame();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setLocationRelativeTo(null);
+		frame.setSize(new Dimension(350, 300));
+		frame.add(new ProductPanel(new int[] { 19, 500, 400 }, null));
+		frame.setVisible(true);
+	}
+
+}
