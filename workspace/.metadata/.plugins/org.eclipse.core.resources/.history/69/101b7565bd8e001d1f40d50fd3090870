@@ -1,0 +1,21 @@
+package controller.admin;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import view.admin.CustomerAdminDialog;
+import view.staff.CustomerDialog;
+
+public class CustomerDialogAdminController implements ActionListener {
+	private CustomerAdminDialog customerAdminDialog;
+
+	public CustomerDialogAdminController(CustomerAdminDialog customerAdminDialog) {
+		this.customerAdminDialog = customerAdminDialog;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		customerAdminDialog.dispose();
+	}
+
+}

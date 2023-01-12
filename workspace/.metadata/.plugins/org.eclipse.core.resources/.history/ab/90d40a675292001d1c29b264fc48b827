@@ -1,0 +1,201 @@
+package dao;
+
+import java.sql.Blob;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.ArrayList;
+
+import javax.sql.rowset.serial.SerialBlob;
+
+import db_connection.JDBCUtil;
+import model.Staffs;
+
+public class StaffsDao {
+
+	public int insert(Staffs staff) {
+		int ketQua = 0;
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "INSERT INTO sales.staffs (firstName, lastName, sex, birthDay, phone, active, storeId, managerId, staffIcon) "
+					+ "OUTPUT inserted.staffId " + "VALUES (?,?,?,?,?,?,?,?,?)";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setString(1, staff.getFirstName());
+			preparedStatement.setString(2, staff.getLastName());
+			preparedStatement.setBoolean(3, staff.getSex());
+			preparedStatement.setDate(4, staff.getBirthDay());
+			preparedStatement.setString(5, staff.getPhone());
+			preparedStatement.setBoolean(6, staff.getActive());
+			preparedStatement.setInt(7, staff.getStoreId());
+			if (staff.getManagerId() != null) {
+				preparedStatement.setInt(8, staff.getManagerId());
+			} else {
+				preparedStatement.setNull(8, Types.INTEGER);
+			}
+			if (staff.getStaffIcon() != null) {
+				preparedStatement.setBlob(9, new SerialBlob(staff.getStaffIcon()));
+			} else {
+				preparedStatement.setBlob(9, (Blob) null);
+			}
+			ketQua = preparedStatement.executeUpdate();
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return ketQua;
+	}
+
+	// khong update duoc staffId, phai update tat ca thuoc tinh do trong csdl de la
+	// not null
+	public int update(Staffs staff) {
+		int ketQua = 0;
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "UPDATE sales.staffs "
+					+ "SET firstName =?, lastName =?, sex = ?, birthDay=?, phone = ?, active = ?, storeId =?, managerId=?, staffIcon = ? "
+					+ " WHERE staffId= ?";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setString(1, staff.getFirstName());
+			preparedStatement.setString(2, staff.getLastName());
+			preparedStatement.setBoolean(3, staff.getSex());
+			preparedStatement.setDate(4, staff.getBirthDay());
+			preparedStatement.setString(5, staff.getPhone());
+			preparedStatement.setBoolean(6, staff.getActive());
+			preparedStatement.setInt(7, staff.getStoreId());
+			if (staff.getManagerId() != null) {
+				preparedStatement.setInt(8, staff.getManagerId());
+			} else {
+				preparedStatement.setNull(8, Types.INTEGER);
+			}
+			if (staff.getStaffIcon() != null) {
+				preparedStatement.setBlob(9, new SerialBlob(staff.getStaffIcon()));
+			} else {
+				preparedStatement.setBlob(9, (Blob) null);
+			}
+			preparedStatement.setInt(10, staff.getStaffId());
+			ketQua = preparedStatement.executeUpdate();
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return ketQua;
+	}
+
+	public int delete(Staffs staff) {
+		int ketQua = 0;
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "DELETE FROM sales.staffs WHERE staffId= ?";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setInt(1, staff.getStaffId());
+			ketQua = preparedStatement.executeUpdate();
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return ketQua;
+	}
+
+	public ArrayList<Staffs> selectAll() {
+		ArrayList<Staffs> ketQua = new ArrayList<Staffs>();
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "SELECT*FROM sales.staffs";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				Staffs staff = new Staffs();
+				staff.setStaffId(rs.getInt("staffId"));
+				staff.setFirstName(rs.getString("firstName"));
+				staff.setLastName(rs.getString("lastName"));
+				staff.setSex(rs.getBoolean("sex"));
+				staff.setBirthDay(rs.getDate("birthDay"));
+				staff.setPhone(rs.getString("phone"));
+				staff.setActive(rs.getBoolean("active"));
+				staff.setStoreId(rs.getInt("storeId"));
+				staff.setManagerId(rs.getInt("managerId"));
+				Blob staffIcon = rs.getBlob("staffIcon");
+				if (staffIcon != null) {
+					staff.setStaffIcon(staffIcon.getBytes(1, (int) staffIcon.length()));
+				}
+				ketQua.add(staff);
+			}
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return ketQua;
+	}
+
+	public boolean find(Staffs staff) {
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "SELECT*FROM sales.staffs WHERE staffId=?";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setInt(1, staff.getStaffId());
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				staff.setStaffId(rs.getInt("staffId"));
+				staff.setFirstName(rs.getString("firstName"));
+				staff.setLastName(rs.getString("lastName"));
+				staff.setSex(rs.getBoolean("sex"));
+				staff.setBirthDay(rs.getDate("birthDay"));
+				staff.setPhone(rs.getString("phone"));
+				staff.setActive(rs.getBoolean("active"));
+				staff.setStoreId(rs.getInt("storeId"));
+				staff.setManagerId(rs.getInt("managerId"));
+				Blob staffIcon = rs.getBlob("staffIcon");
+				if (staffIcon != null) {
+					staff.setStaffIcon(staffIcon.getBytes(1, (int) staffIcon.length()));
+				}
+				return true;
+			}
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return false;
+	}
+
+	public ArrayList<Integer> allId() {
+		ArrayList<Integer> result = new ArrayList<Integer>();
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "SELECT staffId FROM sales.staffs WHERE active = 1";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				result.add(rs.getInt("staffID"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return result;
+	}
+
+	public ArrayList<Integer> allIdFromStore(Integer integer) {
+		ArrayList<Integer> result = new ArrayList<Integer>();
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "SELECT staffId FROM sales.staffs WHERE storeId = ?";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setInt(1, integer);
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				result.add(rs.getInt("staffID"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return result;
+	}
+}

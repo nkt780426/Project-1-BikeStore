@@ -1,0 +1,248 @@
+package view;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.text.MaskFormatter;
+
+public class StaffView extends JDialog {
+	public StaffView() {
+		initComponent();
+		pack();
+		setVisible(true);
+		setTitle("Staff View");
+		setLocationRelativeTo(null);
+		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+	}
+
+	private void initComponent() {
+		// component
+		// label
+		Font font = new Font("Arial", Font.PLAIN, 16);
+		JLabel lbStaffId = new JLabel("StaffId");
+		lbStaffId.setFont(font);
+		JLabel lbStoreId = new JLabel("StoreId");
+		lbStoreId.setFont(font);
+		JLabel lbActive = new JLabel("Active");
+		lbActive.setFont(font);
+		JLabel lbManagerId = new JLabel("ManagerId");
+		lbManagerId.setFont(font);
+		JLabel lbFirstName = new JLabel("FirstName");
+		lbFirstName.setFont(font);
+		JLabel lbLastName = new JLabel("LastName");
+		lbLastName.setFont(font);
+		JLabel lbSex = new JLabel("Sex");
+		lbSex.setFont(font);
+		JLabel lbBirthDay = new JLabel("BirthDay");
+		lbBirthDay.setFont(font);
+		JLabel lbPhone = new JLabel("Phone");
+		lbPhone.setFont(font);
+		// textfield
+		JTextField txtStaffId = new JTextField(10);
+		txtStaffId.setFont(font);
+		JTextField txtStoreId = new JTextField(10);
+		txtStoreId.setFont(font);
+		JTextField txtActive = new JTextField(10);
+		txtActive.setFont(font);
+		JTextField txtManagerId = new JTextField(10);
+		txtManagerId.setFont(font);
+		JTextField txtFirstName = new JTextField(10);
+		txtFirstName.setFont(font);
+		JTextField txtLastName = new JTextField(10);
+		txtLastName.setFont(font);
+		JFormattedTextField ftxtBirthDay = new JFormattedTextField(createFormatter("##-##-####"));
+		ftxtBirthDay.setToolTipText("DD-MM-YYYY");
+		JTextField txtPhone = new JTextField(10);
+		txtPhone.setFont(font);
+		// radiobutton
+		JRadioButton rdbFemale = new JRadioButton("Female");
+		rdbFemale.setFont(font);
+		JRadioButton rdbMale = new JRadioButton("Female");
+		rdbMale.setFont(font);
+		// buttons
+		JButton btnOpen = new JButton("Open", new ImageIcon(getClass().getResource("/icon/open-file-icon16.png")));
+		btnOpen.setFont(font);
+		JButton btnBack = new JButton("Back", new ImageIcon(getClass().getResource("/icon/Go-back-icon16.png")));
+		btnBack.setFont(font);
+		JButton btnSave = new JButton("Save", new ImageIcon(getClass().getResource("/icon/Save-icon16.png")));
+		btnSave.setFont(font);
+		//lable icon
+		JLabel lbIcon = new JLabel(new ImageIcon(getClass().getResource("/icon/Preppy-icon72.png")));
+		lbIcon.setBorder(new LineBorder(Color.CYAN));
+		lbIcon.setPreferredSize(new Dimension(100,100));
+
+		// component status
+
+		ButtonGroup buttonGroup = new ButtonGroup();
+		buttonGroup.add(rdbMale);
+		buttonGroup.add(rdbFemale);
+		rdbMale.setSelected(true);
+		lbIcon.
+		// layout
+		setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
+		// jpanel1
+		JPanel panelEmploee = new JPanel();
+		panelEmploee.setBorder(new TitledBorder("Emploee Information"));
+		panelEmploee.setLayout(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
+
+		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.weighty = 1;
+
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.fill= GridBagConstraints.WEST;
+		panelEmploee.add(lbStaffId, gbc);
+		
+		
+		gbc.gridx = 0;
+		gbc.gridy = 1;
+		panelEmploee.add(lbStoreId, gbc);
+
+		gbc.gridx = 0;
+		gbc.gridy = 2;
+		panelEmploee.add(lbActive, gbc);
+
+		gbc.gridx = 0;
+		gbc.gridy = 3;
+		panelEmploee.add(lbManagerId, gbc);
+
+		gbc.gridx = 1;
+		gbc.gridy = 0;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.weightx = 1;
+		panelEmploee.add(txtStaffId, gbc);
+
+
+		gbc.gridx = 1;
+		gbc.gridy = 1;
+		panelEmploee.add(txtStoreId, gbc);
+
+		gbc.gridx = 1;
+		gbc.gridy = 2;
+		panelEmploee.add(txtActive, gbc);
+
+		gbc.gridx = 2;
+		gbc.gridy = 0;
+		gbc.gridheight = 3;
+		gbc.fill = GridBagConstraints.NONE;
+		gbc.anchor = GridBagConstraints.CENTER;
+		panelEmploee.add(lbIcon, gbc);
+
+		gbc.gridy=3;
+		panelEmploee.add(btnOpen, gbc);
+		add(panelEmploee);
+
+		// jpanel2
+/*
+ * 
+		JPanel jPanel2 = new JPanel();
+		jPanel2.setBorder(new TitledBorder("Personal Information"));
+		jPanel2.setLayout(new GridBagLayout());
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.fill = GridBagConstraints.NONE;
+		gbc.gridwidth = 1;
+		gbc.gridheight = 1;
+		gbc.weightx = 0;
+		gbc.weighty = 1;
+		jPanel2.add(lbFirstName, gbc);
+
+		gbc.gridy++;
+		jPanel2.add(lbSex, gbc);
+
+		gbc.gridy++;
+		jPanel2.add(lbPhone, gbc);
+
+		gbc.gridy++;
+		jPanel2.add(lbAddress, gbc);
+
+		gbc.gridx = 3;
+		gbc.gridy = 0;
+		jPanel2.add(lbLastName, gbc);
+
+		gbc.gridy++;
+		jPanel2.add(lbBirthDay, gbc);
+
+		gbc.gridy++;
+		jPanel2.add(lbEmail, gbc);
+
+		gbc.gridx = 1;
+		gbc.gridy = 0;
+		gbc.gridwidth = 2;
+		gbc.weightx = 1;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		jPanel2.add(txtFirstName, gbc);
+
+		gbc.gridy += 2;
+		jPanel2.add(txtPhone, gbc);
+
+		gbc.gridx = 4;
+		gbc.gridy = 0;
+		jPanel2.add(txtLastName, gbc);
+
+		gbc.gridy++;
+		jPanel2.add(ftxtBirthDay, gbc);
+
+		gbc.gridy++;
+		jPanel2.add(txtEmail, gbc);
+
+		gbc.gridx = 1;
+		gbc.gridy = 3;
+		gbc.gridwidth = 6;
+		jPanel2.add(txtAddress, gbc);
+
+		gbc.gridheight = 1;
+		gbc.gridwidth = 1;
+		gbc.fill = GridBagConstraints.NONE;
+		gbc.gridx = 1;
+		gbc.gridy = 1;
+		jPanel2.add(rdbMale, gbc);
+
+		gbc.gridx++;
+		jPanel2.add(rdbFemale, gbc);
+		add(jPanel2);
+		// jpanel3
+		JPanel jPanel3 = new JPanel();
+		jPanel3.setLayout(new GridBagLayout());
+		gbc.weighty = 0;
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		jPanel3.add(btnBack, gbc);
+		gbc.gridx++;
+		gbc.anchor = GridBagConstraints.EAST;
+		jPanel3.add(btnSignUp, gbc);
+
+		add(jPanel3);
+ */
+	}
+
+	private MaskFormatter createFormatter(String s) {
+		MaskFormatter formatter = null;
+		try {
+			formatter = new MaskFormatter(s);
+		} catch (java.text.ParseException exc) {
+			System.err.println("formatter is bad: " + exc.getMessage());
+		}
+		return formatter;
+	}
+
+}

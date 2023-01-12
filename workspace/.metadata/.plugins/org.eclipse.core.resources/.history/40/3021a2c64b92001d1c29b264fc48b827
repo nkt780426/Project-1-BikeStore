@@ -1,0 +1,202 @@
+package controller.staff;
+
+import java.awt.Color;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.io.File;
+import java.io.IOException;
+import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileSystemView;
+
+import help.DataValidator;
+import view.staff.CustomerDialog;
+
+public class CustomerDialogController implements ActionListener, FocusListener {
+	private CustomerDialog customerDialog;
+
+	public CustomerDialogController(CustomerDialog customerDialog) {
+		this.customerDialog = customerDialog;
+	}
+
+	@Override
+	public void focusGained(FocusEvent e) {
+		if (e.getSource() == customerDialog.getBtnTransport()) {
+			ArrayList<JComponent> list = new ArrayList<JComponent>();
+			list.add(customerDialog.getTxtUsername());
+			list.add(customerDialog.getPassword());
+			list.add(customerDialog.getRePassword());
+			list.add(customerDialog.getTxtFirstName());
+			list.add(customerDialog.getTxtLastName());
+			list.add(customerDialog.getTxtPhone());
+			if (!DataValidator.checkEmpty(customerDialog, list)) {
+				JOptionPane.showMessageDialog(customerDialog, "Texts which be marked with *, cannot be left blank!");
+			}
+		}
+	}
+
+	@Override
+	public void focusLost(FocusEvent e) {
+		if (e.getSource() == customerDialog.getTxtFirstName()) {
+			customerDialog.getTxtFirstName().setText(customerDialog.getTxtFirstName().getText().trim());
+		}
+		if (e.getSource() == customerDialog.getTxtLastName()) {
+			customerDialog.getTxtLastName().setText(customerDialog.getTxtLastName().getText().trim());
+		}
+		if (e.getSource() == customerDialog.getTxtPhone()) {
+			customerDialog.getTxtPhone().setText(customerDialog.getTxtPhone().getText().trim());
+			if (customerDialog.getTxtPhone().getText().length() != 0) {
+				DataValidator.checkPhone(customerDialog, customerDialog.getTxtPhone());
+			} else {
+				customerDialog.getTxtPhone().setBackground(Color.WHITE);
+			}
+		}
+		if (e.getSource() == customerDialog.getTxtEmail()) {
+			customerDialog.getTxtEmail().setText(customerDialog.getTxtEmail().getText().trim());
+			if (customerDialog.getTxtEmail().getText().length() != 0) {
+				DataValidator.checkEmail(customerDialog, customerDialog.getTxtEmail());
+			} else {
+				customerDialog.getTxtEmail().setBackground(Color.WHITE);
+			}
+		}
+		if (e.getSource() == customerDialog.getTxtAddress()) {
+			customerDialog.getTxtAddress().setText(customerDialog.getTxtAddress().getText().trim());
+		}
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == customerDialog.getBtnBack()) {
+			CustomerFrameView customerFrameView = customerDialog.getCustomerFrameView();
+			customerFrameView.getCardLayout().previous(customerFrameView.getPanelCenter());
+		}
+		if (e.getSource() == customerDialog.getBtnOpen()) {
+			JFileChooser fileChooser = new JFileChooser(FileSystemView.getFileSystemView());
+			fileChooser.setFileFilter(new FileFilter() {
+
+				@Override
+				public String getDescription() {
+					return "Image File (*.jpg)";
+				}
+
+				@Override
+				public boolean accept(File f) {
+					if (f.isDirectory()) {
+						return true;
+					} else {
+						return f.getName().toLowerCase().endsWith(".jpg");
+					}
+				}
+			});
+			if (fileChooser.showOpenDialog(customerDialog) == JFileChooser.CANCEL_OPTION) {
+				return;
+			}
+			File file = fileChooser.getSelectedFile();
+			ImageIcon icon = new ImageIcon(file.getPath());
+			Image img = ImageAccept.resize(icon.getImage(), 100, 100);
+			ImageIcon resizeIcon = new ImageIcon(img);
+			customerDialog.getLbIcon().setIcon(resizeIcon);
+			try {
+				customerDialog.setCustomerIcon(ImageAccept.toByteArray(img, "jpg"));
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
+		if (e.getSource() == customerDialog.getBtnSave()) {
+
+			try {
+				// tao account
+				Accounts account = new Accounts();
+				account.setUsername(ShareDataBetweenFrame.account.getUsername());
+				account.setPassword(new String(customerDialog.getPassword().getPassword()));
+				account.setPosition(false);
+				account.setStaffId(ShareDataBetweenFrame.account.getStaffId());
+				AccountsDao accountsDao = new AccountsDao();
+				// tao customer
+				Customers customer = new Customers();
+				customer.setCustomerId(ShareDataBetweenFrame.staff.getStaffId());
+				customer.setFirstName(customerDialog.getTxtFirstName().getText());
+				customer.setLastName(customerDialog.getTxtLastName().getText());
+				customer.setSex(customerDialog.getRdbMale().isSelected());
+				if (customerDialog.getFtxtBirthDay().getText().length() != 0) {
+					try {
+						SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+						sdf.setLenient(false);
+						java.util.Date date = sdf.parse(customerDialog.getFtxtBirthDay().getText());
+						Date birthDay = new Date(date.getTime());
+						customer.setBirthDay(birthDay);
+					} catch (ParseException e1) {
+						e1.printStackTrace();
+					}
+				}
+				customer.setPhone(customerDialog.getTxtPhone().getText());
+				if (customerDialog.getTxtEmail().getText().length() != 0) {
+					customer.setEmail(customerDialog.getTxtEmail().getText());
+				}
+				if (customerDialog.getTxtAddress().getText().length() != 0) {
+					customer.setAddress(customerDialog.getTxtAddress().getText());
+				}
+				customer.setCustomerIcon(customerDialog.getCustomerIcon());
+				CustomersDao customersDao = new CustomersDao();
+				if (accountsDao.update(account) > 0 && customersDao.update(customer) > 0) {
+					ShareDataBetweenFrame.account = account;
+					ShareDataBetweenFrame.staff = customer;
+					JOptionPane.showMessageDialog(customerDialog, "Success!");
+				} else {
+					JOptionPane.showMessageDialog(customerDialog, "Cann't update!");
+					account = ShareDataBetweenFrame.account;
+					customer = ShareDataBetweenFrame.staff;
+
+					// account
+					customerDialog.getTxtUsername().setText(account.getUsername());
+					customerDialog.getPassword().setText(account.getPassword());
+					customerDialog.getRePassword().setText(account.getPassword());
+
+					// infomation
+					personalPanel.getTxtFirstName().setText(customer.getFirstName());
+					personalPanel.getTxtLastName().setText(customer.getLastName());
+					if (customer.getSex()) {
+						personalPanel.getRdbMale().setSelected(true);
+					} else {
+						personalPanel.getRdbFemale().setSelected(true);
+					}
+					SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+					String dateFormat = sdf.format(customer.getBirthDay());
+					personalPanel.getFtxtBirthDay().setText(dateFormat);
+					personalPanel.getTxtPhone().setText(customer.getPhone());
+					personalPanel.getTxtEmail().setText(customer.getEmail());
+					personalPanel.getTxtAddress().setText(customer.getAddress());
+					if (customer.getCustomerIcon() != null) {
+						personalPanel.setCustomerIcon(customer.getCustomerIcon());
+						Image img;
+						try {
+							img = ImageAccept.createImageFromByteArray(personalPanel.getCustomerIcon(), "jpg");
+							Image resize = ImageAccept.resize(img, 100, 100);
+							ImageIcon icon = new ImageIcon(resize);
+							personalPanel.getLbIcon().setIcon(icon);
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
+					}
+				}
+
+			} catch (Exception e2) {
+				JOptionPane.showMessageDialog(personalPanel, e2.getMessage());
+			}
+
+		}
+	}
+
+}

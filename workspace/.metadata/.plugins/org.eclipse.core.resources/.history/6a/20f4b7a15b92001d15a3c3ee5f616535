@@ -1,0 +1,16 @@
+package test;
+
+import dao.AccountsDao;
+import model.Accounts;
+
+public class TestAccountDao {
+	public static void main(String[] args) {
+		AccountsDao accountsDao = new AccountsDao();
+		Accounts accounts = new Accounts();
+		accounts.setUsername("hoangkim464");
+		accounts.setPassword("0978794");
+		accounts.setPosition(false);
+		accounts.setStaffId(7);
+		System.out.println(accountsDao.update(accounts));
+	}
+}

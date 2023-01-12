@@ -1,0 +1,210 @@
+package view.admin;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.Insets;
+import java.io.IOException;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.border.LineBorder;
+
+import controller.admin.BrandDialogController;
+import help.ImageAccept;
+import model.Brands;
+
+@SuppressWarnings("serial")
+public class BrandDialog extends JDialog {
+	private AdminFrameView adminFrameView;
+	private Brands brand;
+	private byte[] brandIcon;
+
+	private JTextField txtBrandId;
+	private JTextField txtBrandName;
+	private JTextArea atxtDescribe;
+	private JButton btnOpen;
+	private JButton btnBack;
+	private JButton btnSave;
+	private JLabel lbIcon;
+
+	public BrandDialog(AdminFrameView adminFrameView, Brands brand) {
+		super(adminFrameView, true);
+		this.adminFrameView = adminFrameView;
+		this.brand = brand;
+		initComponent();
+		setEvent();
+		if (brand != null) {
+			initInformation();
+		}
+		setTitle("Brand View");
+		pack();
+		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		setLocationRelativeTo(null);
+		setVisible(true);
+	}
+
+	private void initInformation() {
+		if (brand.getBrandIcon() != null) {
+			brandIcon = brand.getBrandIcon();
+			try {
+				Image img = ImageAccept.createImageFromByteArray(brandIcon, ".jpg");
+				Image resize = ImageAccept.resize(img, 100, 100);
+				ImageIcon icon = new ImageIcon(resize);
+				lbIcon.setIcon(icon);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		txtBrandId.setText(String.valueOf(brand.getBrandId()));
+		txtBrandName.setText(brand.getBrandName());
+		atxtDescribe.setText(brand.getDescribe());
+	}
+
+	private void setEvent() {
+		BrandDialogController categoryDialogController = new BrandDialogController(this);
+		btnBack.addActionListener(categoryDialogController);
+		btnSave.addActionListener(categoryDialogController);
+		txtBrandName.addFocusListener(categoryDialogController);
+	}
+
+	private void initComponent() {
+		Font font = new Font("Arial", Font.PLAIN, 16);
+		JLabel lbBrandId = new JLabel("Brand Id");
+		lbBrandId.setFont(font);
+		JLabel lbBrandName = new JLabel("Brand Name");
+		lbBrandName.setFont(font);
+		JLabel lbDescribe = new JLabel("Describe");
+		lbDescribe.setFont(font);
+		lbIcon = new JLabel(new ImageIcon(getClass().getResource("/icon/brand-icon72.png")));
+		lbIcon.setBorder(new LineBorder(Color.CYAN));
+		lbIcon.setPreferredSize(new Dimension(100, 100));
+
+		txtBrandId = new JTextField(10);
+		txtBrandId.setFont(font);
+		txtBrandId.setEditable(false);
+		txtBrandName = new JTextField(10);
+		txtBrandName.setFont(font);
+
+		atxtDescribe = new JTextArea();
+		atxtDescribe.setLineWrap(true);
+		atxtDescribe.setWrapStyleWord(true);
+		JScrollPane scrollPane = new JScrollPane(atxtDescribe, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scrollPane.setPreferredSize(new Dimension(400, 200));
+
+		btnOpen = new JButton("Open", new ImageIcon(getClass().getResource("/icon/open-file-icon16.png")));
+		btnOpen.setFont(font);
+		btnBack = new JButton("Back", new ImageIcon(getClass().getResource("/icon/Go-back-icon16.png")));
+		btnBack.setFont(font);
+		btnSave = new JButton("Save", new ImageIcon(getClass().getResource("/icon/Save-icon16.png")));
+		btnSave.setFont(font);
+		// layout
+		setLayout(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.weighty = 1;
+		gbc.weightx = 1;
+
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.anchor = GridBagConstraints.WEST;
+		add(lbBrandId, gbc);
+
+		gbc.gridx++;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		add(txtBrandId, gbc);
+
+		gbc.gridy++;
+		add(txtBrandName, gbc);
+
+		gbc.gridx--;
+		gbc.fill = GridBagConstraints.NONE;
+		add(lbBrandName, gbc);
+
+		gbc.gridx = 2;
+		gbc.gridy = 0;
+		gbc.gridheight = 2;
+		gbc.gridwidth = 2;
+		gbc.anchor = GridBagConstraints.CENTER;
+		add(lbIcon, gbc);
+
+		gbc.gridy++;
+		gbc.gridheight = 1;
+		add(btnSave, gbc);
+
+		gbc.gridx = 0;
+		gbc.gridy = 3;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.gridwidth = 1;
+		add(lbDescribe, gbc);
+
+		gbc.gridy++;
+		gbc.gridwidth = 4;
+		add(scrollPane, gbc);
+
+		gbc.gridx = 0;
+		gbc.gridy++;
+		gbc.gridwidth = 1;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.weightx = 0;
+		gbc.weighty = 0;
+		add(btnBack, gbc);
+
+		gbc.gridx = 3;
+		gbc.anchor = GridBagConstraints.EAST;
+		add(btnSave, gbc);
+	}
+
+	public AdminFrameView getAdminFrameView() {
+		return adminFrameView;
+	}
+
+	public Brands getBrand() {
+		return brand;
+	}
+
+	public JTextField getTxtBrandId() {
+		return txtBrandId;
+	}
+
+	public JTextField getTxtBrandName() {
+		return txtBrandName;
+	}
+
+	public JTextArea getAtxtDescribe() {
+		return atxtDescribe;
+	}
+
+	public JButton getBtnBack() {
+		return btnBack;
+	}
+
+	public JButton getBtnSave() {
+		return btnSave;
+	}
+
+	public byte[] getBrandIcon() {
+		return brandIcon;
+	}
+
+	public JButton getBtnOpen() {
+		return btnOpen;
+	}
+
+	public JLabel getLbIcon() {
+		return lbIcon;
+	}
+
+	public static void main(String[] args) {
+		new BrandDialog(null, null);
+	}
+}

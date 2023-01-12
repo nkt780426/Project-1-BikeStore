@@ -1,0 +1,113 @@
+package view.staff;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.text.SimpleDateFormat;
+
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+import javax.swing.border.LineBorder;
+
+import controller.admin.CustomerDialogController;
+
+@SuppressWarnings("serial")
+public class CustomerCustomerDialog extends JDialog {
+	private StaffFrameView staffFrameView;
+	public byte[] customerIcon;
+
+	public JTextField txtFirstName;
+	public JRadioButton rdbMale;
+	public JRadioButton rdbFemale;
+	public JTextField txtLastName;
+	public JFormattedTextField ftxtBirthDay;
+	public JTextField txtPhone;
+	public JTextField txtEmail;
+	public JTextField txtAddress;
+	public JButton btnOpen;
+	public JButton btnBack;
+	public JButton btnSignUp;
+	public JLabel lbIcon;
+
+	public CustomerCustomerDialog(StaffFrameView staffFrameView) {
+		super(staffFrameView, true);
+		this.staffFrameView = staffFrameView;
+		initComponent();
+		initInformation();
+		pack();
+		setLocationRelativeTo(null);
+		setTitle("Order Dialog");
+		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		setEvent();
+		setVisible(true);
+	}
+
+	private void setEvent() {
+		CustomerDialogController controller = new CustomerDialogController(this);
+	}
+
+	private void initInformation() {
+
+	}
+
+	private void initComponent() {
+		Font font = new Font("Arial", Font.PLAIN, 16);
+
+		btnOpen = new JButton("Open", new ImageIcon(getClass().getResource("/icon/open-file-icon16.png")));
+		btnOpen.setFont(font);
+		lbIcon = new JLabel(new ImageIcon(getClass().getResource("/icon/person72.png")));
+		lbIcon.setBorder(new LineBorder(Color.CYAN));
+		lbIcon.setPreferredSize(new Dimension(100, 100));
+
+		JLabel lbFirstName = new JLabel("FirstName(*)");
+		lbFirstName.setFont(font);
+		txtFirstName = new JTextField(20);
+		txtFirstName.setFont(font);
+		JLabel lbLastName = new JLabel("Last Name(*)");
+		lbLastName.setFont(font);
+		txtLastName = new JTextField(20);
+		txtLastName.setFont(font);
+		JLabel lbSex = new JLabel("Sex(*)");
+		lbSex.setFont(font);
+		rdbMale = new JRadioButton("Male");
+		rdbMale.setFont(font);
+		rdbFemale = new JRadioButton("Female");
+		rdbFemale.setFont(font);
+		JLabel lbBirthDay = new JLabel("Birth Day");
+		lbBirthDay.setFont(font);
+		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+
+		sdf.setLenient(false);
+		ftxtBirthDay = new JFormattedTextField(sdf);
+		ftxtBirthDay.setFont(font);
+		ftxtBirthDay.setToolTipText("dd-MM-yyyy");
+		JLabel lbPhone = new JLabel("Phone(*)");
+		lbPhone.setFont(font);
+		txtPhone = new JTextField(10);
+		txtPhone.setFont(font);
+		JLabel lbEmail = new JLabel("Email");
+		lbEmail.setFont(font);
+		txtEmail = new JTextField(10);
+		txtEmail.setFont(font);
+		JLabel lbAddress = new JLabel("Address");
+		lbAddress.setFont(font);
+		txtAddress = new JTextField(10);
+		txtAddress.setFont(font);
+
+		btnBack = new JButton("Back", new ImageIcon(getClass().getResource("/icon/Go-back-icon16.png")));
+		btnBack.setFont(font);
+		btnSignUp = new JButton("SignUp", new ImageIcon(getClass().getResource("/icon/Sign_up16.png")));
+		btnSignUp.setFont(font);
+
+		ButtonGroup buttonGroup = new ButtonGroup();
+		buttonGroup.add(rdbMale);
+		buttonGroup.add(rdbFemale);
+		rdbMale.setSelected(true);
+	}
+}

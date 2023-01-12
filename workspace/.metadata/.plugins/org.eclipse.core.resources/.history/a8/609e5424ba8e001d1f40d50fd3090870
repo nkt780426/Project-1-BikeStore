@@ -1,0 +1,84 @@
+
+package dao;
+
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Random;
+
+import db_connection.JDBCUtil;
+import model.Customers;
+import model.OrderItems;
+import model.Orders;
+import model.Stocks;
+
+public class CartTransaction {
+	// mảng data đã sắp xếp các storeId theo thứ tụ tăng dần
+	public ArrayList<Orders> Buy(ArrayList<Object[]> data, Customers customer) {
+		ArrayList<Orders> orders = new ArrayList<Orders>();
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			connection.setAutoCommit(false);
+			int storeId = -1;
+			int itemId = -1;
+			for (Object[] object : data) {
+				// tao order cho moi store
+				if (storeId != (Integer) object[0]) {
+					storeId = (Integer) object[0];
+					itemId = 1;
+					// tao order
+					Orders order = new Orders();
+					order.setCustomerId(customer.getCustomerId());
+					order.setOrderStatus(1);
+					order.setOrderDate(new Date(System.currentTimeMillis()));
+					order.setStoreId(storeId);
+					StaffsDao staffsDao = new StaffsDao();
+					ArrayList<Integer> allIdFromStore = staffsDao.allIdFromStore(storeId);
+					order.setStaffId(allIdFromStore.get(new Random().nextInt(allIdFromStore.size())));
+					OrdersDao ordersDao = new OrdersDao();
+					if (ordersDao.insert(order)) {
+						orders.add(order);
+					} else {
+						connection.rollback();
+					}
+				}
+				// tao orderitem va update stock cho moi object
+				OrderItems orderItems = new OrderItems(orders.get(orders.size() - 1).getOrderId(), itemId,
+						(Integer) object[1], (Integer) object[2], (BigDecimal) object[3]);
+				Stocks stock = new Stocks(storeId, (Integer) object[1], (Integer) object[2]);
+				StocksDao stocksDao = new StocksDao();
+				if (stocksDao.find(stock)) {
+					if (stock.getQuantity() > orderItems.getQuantity()) {
+						stock.setQuantity(stock.getQuantity() - orderItems.getQuantity());
+						if (!stocksDao.update(stock)) {
+							connection.rollback();
+						}
+					} else {
+						if (stock.getQuantity() == orderItems.getQuantity()) {
+							if (!stocksDao.delete(stock)) {
+								connection.rollback();
+							}
+						} else {
+							connection.rollback();
+						}
+					}
+				} else {
+					connection.rollback();
+				}
+				OrdersItemsDao ordersItemsDao = new OrdersItemsDao();
+				if (ordersItemsDao.insert(orderItems) >= 0) {
+					itemId++;
+				} else {
+					connection.rollback();
+				}
+			}
+			connection.commit();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return orders;
+	}
+}

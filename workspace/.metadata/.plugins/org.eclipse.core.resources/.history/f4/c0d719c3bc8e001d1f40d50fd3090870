@@ -1,0 +1,8 @@
+package controller.staff;
+
+import java.awt.event.ActionListener;
+import java.awt.event.FocusListener;
+
+public class CustomerDialogController implements ActionListener, FocusListener {
+
+}

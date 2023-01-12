@@ -1,0 +1,58 @@
+package controller.customer;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+
+import controller.login.ShareDataBetweenFrame;
+import view.customer.AboutUsView;
+import view.customer.CustomerFrameView;
+import view.login.LoginFrameView;
+
+public class CustomerFrameController implements ActionListener, ItemListener {
+	private CustomerFrameView customerFrameView;
+
+	public CustomerFrameController(CustomerFrameView customerFrameView) {
+		this.customerFrameView = customerFrameView;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == customerFrameView.getMnuiShop() || e.getSource() == customerFrameView.getBtnShop()) {
+			customerFrameView.getCardLayout().show(customerFrameView.getPanelCenter(), "1");
+		}
+		if (e.getSource() == customerFrameView.getBtnCart() || e.getSource() == customerFrameView.getMnuiCart()) {
+			customerFrameView.getCardLayout().show(customerFrameView.getPanelCenter(), "2");
+
+		}
+		if (e.getSource() == customerFrameView.getBtnPersonal()
+				|| e.getSource() == customerFrameView.getMnuiPersonal()) {
+			customerFrameView.getCardLayout().show(customerFrameView.getPanelCenter(), "3");
+		}
+		if (e.getSource() == customerFrameView.getBtnHistory() || e.getSource() == customerFrameView.getMnuiHistory()) {
+			customerFrameView.getCardLayout().show(customerFrameView.getPanelCenter(), "4");
+		}
+		if (e.getSource() == customerFrameView.getBtnSignOut() || e.getSource() == customerFrameView.getMnuiSignOut()) {
+			ShareDataBetweenFrame.account = null;
+			ShareDataBetweenFrame.customer = null;
+			customerFrameView.dispose();
+			new LoginFrameView();
+		}
+		if (e.getSource() == customerFrameView.getMnuiAboutUs()) {
+			new AboutUsView(customerFrameView);
+		}
+	}
+
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+		if (e.getSource() == customerFrameView.getMnucbToolBar()) {
+			if (customerFrameView.getMnucbToolBar().isSelected()) {
+				customerFrameView.getToolBar().setVisible(true);
+			} else {
+				customerFrameView.getToolBar().setVisible(false);
+			}
+		}
+	}
+
+}

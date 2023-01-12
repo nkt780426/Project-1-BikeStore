@@ -1,0 +1,114 @@
+package dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import db_connection.JDBCUtil;
+import model.Accounts;
+
+public class AccountsDao {
+	public static AccountsDao getInstance() {
+		return new AccountsDao();
+	}
+
+	// account adminstrastor phai tao truc tiep tren db => khong duoc update hay
+	// insert truong poisition
+	// cac phuong thuc duoi day ap dung voi account customer
+	// nguoi dung khong the tu xoa tai khoan nen khong co phuong thuc delete
+	public int insert(Accounts account) {
+		int ketQua = 0;
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "INSERT INTO sales.accounts " + "VALUES (?,?,?,?)";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setString(1, account.getUsername());
+			preparedStatement.setString(2, account.getPassword());
+			preparedStatement.setBoolean(3, account.getPosition());
+			preparedStatement.setInt(4, account.getCustomerId());
+			ketQua = preparedStatement.executeUpdate();
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return ketQua;
+	}
+
+	// chi update password con user, position, customerId thi khong
+	public int update(Accounts account) {
+		int ketQua = 0;
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "UPDATE sales.accounts " + "SET password = ? " + "WHERE username= ?";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setString(1, account.getPassword());
+			preparedStatement.setString(2, account.getUsername());
+			ketQua = preparedStatement.executeUpdate();
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return ketQua;
+	}
+
+	// true neu ton tai, false neu khong ton tai
+	public boolean checkUsername(Accounts account) {
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "SELECT username FROM sales.accounts WHERE username = ?";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setString(1, account.getUsername());
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				return true;
+			}
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return false;
+	}
+
+	// true neu ton tai, false neu khong ton tai
+	public boolean checkPassword(Accounts account) {
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "SELECT username FROM sales.accounts WHERE username = ?, password = ?";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setString(1, account.getUsername());
+			preparedStatement.setString(2, account.getPassword());
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				return true;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	//
+	public boolean checkAccount(Accounts account) {
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "SELECT customerId FROM sales.customers WHERE username = ?, password = ?";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setString(1, account.getUsername());
+			preparedStatement.setString(2, account.getPassword());
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				account.setCustomerId(rs.getInt("customerId"));
+				return true;
+			}
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return false;
+	}
+}

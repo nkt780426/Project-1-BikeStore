@@ -1,0 +1,481 @@
+package view.customer;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.Insets;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
+
+import controller.customer.PersonalPanelController;
+import controller.login.ShareDataBetweenFrame;
+import help.ImageAccept;
+import model.Accounts;
+import model.Staffs;
+
+@SuppressWarnings("serial")
+public class PersonalPanel extends JPanel {
+	private CustomerFrameView customerFrameView;
+	private byte[] staffIcon;
+
+	private JTextField txtUsername;
+	private JPasswordField password;
+	private JPasswordField rePassword;
+
+	private JTextField txtStaffId;
+	private JCheckBox cbActive;
+	private JTextField txtFirstName;
+	private JTextField txtLastName;
+	private JFormattedTextField ftxtBirthDay;
+	private JTextField txtPhone;
+	private JRadioButton rdbFemale;
+	private JRadioButton rdbMale;
+	private JComboBox<Integer> cbbStoreId;
+	private JComboBox<Integer> cbbManagerId;
+	private JButton btnOpen;
+	private JButton btnBack;
+	private JButton btnSave;
+	private JLabel lbIcon;
+
+	public PersonalPanel(CustomerFrameView customerFrameView) {
+		this.customerFrameView = customerFrameView;
+		initComponent();
+		setEvent();
+		initInformation();
+	}
+
+	public void initInformation() {
+		Accounts account = ShareDataBetweenFrame.account;
+		Staffs staff = ShareDataBetweenFrame.staff;
+		// account
+		txtUsername.setText(account.getUsername());
+		password.setText(account.getPassword());
+		rePassword.setText(account.getPassword());
+
+		// information
+		if (staff.getStaffIcon() != null) {
+			staffIcon = staff.getStaffIcon();
+			try {
+				Image img = ImageAccept.createImageFromByteArray(staffIcon, ".jpg");
+				Image resize = ImageAccept.resize(img, 100, 100);
+				ImageIcon icon = new ImageIcon(resize);
+				lbIcon.setIcon(icon);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		txtStaffId.setText(String.valueOf(staff.getStaffId()));
+		if (staff.getActive()) {
+			cbActive.setSelected(true);
+		} else {
+			cbActive.setSelected(false);
+		}
+		cbbStoreId.setSelectedItem(staff.getStoreId());
+		cbbManagerId.setSelectedItem(staff.getManagerId());
+		txtFirstName.setText(staff.getFirstName());
+		txtLastName.setText(staff.getLastName());
+		if (staff.getSex()) {
+			rdbMale.setSelected(true);
+		} else {
+			rdbFemale.setSelected(true);
+		}
+		if (staff.getBirthDay() != null) {
+			SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+			String dateFormat = sdf.format(staff.getBirthDay());
+			ftxtBirthDay.setText(dateFormat);
+		}
+		txtPhone.setText(staff.getPhone());
+
+	}
+
+	private void setEvent() {
+		PersonalPanelController personalPanelController = new PersonalPanelController(this);
+		txtUsername.addFocusListener(personalPanelController);
+		password.addFocusListener(personalPanelController);
+		rePassword.addFocusListener(personalPanelController);
+		txtFirstName.addFocusListener(personalPanelController);
+		txtLastName.addFocusListener(personalPanelController);
+		txtPhone.addFocusListener(personalPanelController);
+		btnOpen.addActionListener(personalPanelController);
+		btnBack.addActionListener(personalPanelController);
+		btnSave.addActionListener(personalPanelController);
+	}
+
+	private void initComponent() {
+		// component
+		Font font = new Font("Arial", Font.PLAIN, 16);
+		JLabel lbUsername = new JLabel("Username(*)");
+		lbUsername.setFont(font);
+		txtUsername = new JTextField(10);
+		txtUsername.setFont(font);
+		txtUsername.setToolTipText("Username has at least 4 characters, no more 50 charaters and must be 0-9,A-Z,a-z");
+		txtUsername.setEnabled(false);
+		JLabel lbPassword = new JLabel("Password(*)");
+		lbPassword.setFont(font);
+		password = new JPasswordField(10);
+		password.setFont(font);
+		password.setToolTipText(
+				"Password has at least 6 characters, no more than 50 characters. Must contain at least 1 numeric character, 1 uppercase character, 1 lowercase character");
+		JLabel lbRePassword = new JLabel("Re-Password(*)");
+		lbRePassword.setFont(font);
+		rePassword = new JPasswordField(10);
+		rePassword.setFont(font);
+		btnOpen = new JButton("Open", new ImageIcon(getClass().getResource("/icon/open-file-icon16.png")));
+		btnOpen.setFont(font);
+		lbIcon = new JLabel(new ImageIcon(getClass().getResource("/icon/person72.png")));
+		lbIcon.setBorder(new LineBorder(Color.CYAN));
+		lbIcon.setPreferredSize(new Dimension(100, 100));
+
+		JLabel lbStaffId = new JLabel("Staff ID");
+		lbStaffId.setFont(font);
+		JLabel lbStoreId = new JLabel("Store ID");
+		lbStoreId.setFont(font);
+		JLabel lbActive = new JLabel("Active");
+		lbActive.setFont(font);
+		JLabel lbManagerId = new JLabel("Manager ID");
+		lbManagerId.setFont(font);
+		JLabel lbFirstName = new JLabel("FirstName");
+		lbFirstName.setFont(font);
+		JLabel lbLastName = new JLabel("LastName");
+		lbLastName.setFont(font);
+		JLabel lbSex = new JLabel("Sex");
+		lbSex.setFont(font);
+		JLabel lbBirthDay = new JLabel("BirthDay");
+		lbBirthDay.setFont(font);
+		JLabel lbPhone = new JLabel("Phone");
+		lbPhone.setFont(font);
+		// textfield
+		txtStaffId = new JTextField(10);
+		txtStaffId.setFont(font);
+		txtStaffId.setEnabled(false);
+		;
+		txtFirstName = new JTextField(10);
+		txtFirstName.setFont(font);
+		txtLastName = new JTextField(14);
+		txtLastName.setFont(font);
+		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+		ftxtBirthDay = new JFormattedTextField(sdf);
+		ftxtBirthDay.setToolTipText("DD-MM-YYYY");
+		ftxtBirthDay.setFont(font);
+		txtPhone = new JTextField(10);
+		txtPhone.setFont(font);
+		// radiobutton
+		rdbFemale = new JRadioButton("Female");
+		rdbFemale.setFont(font);
+		rdbMale = new JRadioButton("Male");
+		rdbMale.setFont(font);
+		// combobox
+		cbbStoreId = new JComboBox<Integer>();
+		cbbStoreId.setFont(font);
+		cbbManagerId = new JComboBox<Integer>();
+		cbbManagerId.setFont(font);
+		// checkbox
+		cbActive = new JCheckBox();
+		cbActive.setFont(font);
+		// buttons
+		btnOpen = new JButton("Open", new ImageIcon(getClass().getResource("/icon/open-file-icon16.png")));
+		btnOpen.setFont(font);
+		btnBack = new JButton("Back", new ImageIcon(getClass().getResource("/icon/Go-back-icon16.png")));
+		btnBack.setFont(font);
+		btnSave = new JButton("Save", new ImageIcon(getClass().getResource("/icon/Save-icon16.png")));
+		btnSave.setFont(font);
+		// lable icon
+		lbIcon = new JLabel(new ImageIcon(getClass().getResource("/icon/Preppy-icon72.png")));
+		lbIcon.setBorder(new LineBorder(Color.CYAN));
+		lbIcon.setPreferredSize(new Dimension(100, 100));
+
+		// component status
+
+		ButtonGroup buttonGroup = new ButtonGroup();
+		buttonGroup.add(rdbMale);
+		buttonGroup.add(rdbFemale);
+		rdbMale.setSelected(true);
+
+		// layout
+		// panelACcount
+		JPanel panelAccount = new JPanel();
+		panelAccount.setBorder(new TitledBorder("Account"));
+		panelAccount.setLayout(new GridBagLayout());
+		GridBagConstraints gbcAccount = new GridBagConstraints();
+
+		gbcAccount.insets = new Insets(5, 5, 5, 5);
+		gbcAccount.weighty = 1;
+
+		gbcAccount.gridx = 0;
+		gbcAccount.gridy = 0;
+		gbcAccount.anchor = GridBagConstraints.WEST;
+		panelAccount.add(lbStaffId, gbcAccount);
+
+		gbcAccount.gridy++;
+		panelAccount.add(lbUsername, gbcAccount);
+
+		gbcAccount.gridx = 2;
+		gbcAccount.gridy = 0;
+		panelAccount.add(lbPassword, gbcAccount);
+
+		gbcAccount.gridy++;
+		panelAccount.add(lbRePassword, gbcAccount);
+
+		gbcAccount.gridx = 1;
+		gbcAccount.gridy = 0;
+		gbcAccount.fill = GridBagConstraints.HORIZONTAL;
+		panelAccount.add(txtStaffId, gbcAccount);
+
+		gbcAccount.gridy++;
+		panelAccount.add(txtUsername, gbcAccount);
+
+		gbcAccount.gridx = 3;
+		gbcAccount.gridy = 0;
+		panelAccount.add(password, gbcAccount);
+
+		gbcAccount.gridy++;
+		panelAccount.add(rePassword, gbcAccount);
+		// panelEmployee
+		JPanel panelEmployee = new JPanel();
+		panelEmployee.setBorder(new TitledBorder("Employee Information"));
+		panelEmployee.setLayout(new GridBagLayout());
+		GridBagConstraints gbcEmployee = new GridBagConstraints();
+
+		gbcEmployee.insets = new Insets(5, 5, 5, 5);
+		gbcEmployee.weighty = 1;
+
+		gbcEmployee.gridx = 0;
+		gbcEmployee.gridy = 0;
+		gbcEmployee.anchor = GridBagConstraints.WEST;
+		panelEmployee.add(lbStaffId, gbcEmployee);
+
+		gbcEmployee.gridx = 0;
+		gbcEmployee.gridy = 1;
+		panelEmployee.add(lbStoreId, gbcEmployee);
+
+		gbcEmployee.gridx = 0;
+		gbcEmployee.gridy = 2;
+		panelEmployee.add(lbActive, gbcEmployee);
+
+		gbcEmployee.gridx = 0;
+		gbcEmployee.gridy = 3;
+		panelEmployee.add(lbManagerId, gbcEmployee);
+
+		gbcEmployee.gridx = 1;
+		gbcEmployee.gridy = 0;
+		gbcEmployee.fill = GridBagConstraints.HORIZONTAL;
+		gbcEmployee.weightx = 1;
+		panelEmployee.add(txtStaffId, gbcEmployee);
+
+		gbcEmployee.gridx = 1;
+		gbcEmployee.gridy = 1;
+		panelEmployee.add(cbbStoreId, gbcEmployee);
+
+		gbcEmployee.gridx = 1;
+		gbcEmployee.gridy = 2;
+		panelEmployee.add(cbActive, gbcEmployee);
+
+		gbcEmployee.gridx = 1;
+		gbcEmployee.gridy = 3;
+		panelEmployee.add(cbbManagerId, gbcEmployee);
+
+		gbcEmployee.gridx = 3;
+		gbcEmployee.gridy = 0;
+		gbcEmployee.gridheight = 3;
+		gbcEmployee.fill = GridBagConstraints.NONE;
+		gbcEmployee.anchor = GridBagConstraints.CENTER;
+		panelEmployee.add(lbIcon, gbcEmployee);
+
+		gbcEmployee.gridy = 3;
+		panelEmployee.add(btnOpen, gbcEmployee);
+
+		// panelPersonal
+		JPanel panelPersonal = new JPanel();
+		panelPersonal.setBorder(new TitledBorder("Personal Information"));
+		panelPersonal.setLayout(new GridBagLayout());
+
+		GridBagConstraints gbcInformation = new GridBagConstraints();
+		gbcInformation.insets = new Insets(5, 5, 5, 5);
+		gbcInformation.weighty = 1;
+
+		gbcInformation.gridx = 0;
+		gbcInformation.gridy = 0;
+		gbcInformation.anchor = GridBagConstraints.WEST;
+		panelPersonal.add(lbFirstName, gbcInformation);
+
+		gbcInformation.gridx = 0;
+		gbcInformation.gridy = 1;
+		panelPersonal.add(lbSex, gbcInformation);
+
+		gbcInformation.gridx = 0;
+		gbcInformation.gridy = 2;
+		panelPersonal.add(lbPhone, gbcInformation);
+
+		gbcInformation.gridx = 3;
+		gbcInformation.gridy = 0;
+		panelPersonal.add(lbLastName, gbcInformation);
+
+		gbcInformation.gridx = 3;
+		gbcInformation.gridy = 1;
+		panelPersonal.add(lbBirthDay, gbcInformation);
+
+		gbcInformation.gridx = 1;
+		gbcInformation.gridy = 0;
+		gbcInformation.fill = GridBagConstraints.HORIZONTAL;
+		gbcInformation.weightx = 1;
+		gbcInformation.gridwidth = 2;
+		panelPersonal.add(txtFirstName, gbcInformation);
+
+		gbcInformation.gridx = 1;
+		gbcInformation.gridy = 2;
+		panelPersonal.add(txtPhone, gbcInformation);
+
+		gbcInformation.gridx = 1;
+		gbcInformation.gridy = 1;
+		gbcInformation.gridwidth = 1;
+		panelPersonal.add(rdbMale, gbcInformation);
+
+		gbcInformation.gridx = 2;
+		gbcInformation.gridy = 1;
+		panelPersonal.add(rdbFemale, gbcInformation);
+
+		gbcInformation.gridx = 4;
+		gbcInformation.gridy = 0;
+		panelPersonal.add(txtLastName, gbcInformation);
+
+		gbcInformation.gridx = 4;
+		gbcInformation.gridy = 1;
+		panelPersonal.add(ftxtBirthDay, gbcInformation);
+
+		JPanel pannelButton = new JPanel();
+		pannelButton.setLayout(new GridBagLayout());
+
+		GridBagConstraints gbcButton = new GridBagConstraints();
+
+		gbcButton.weighty = 0;
+		gbcButton.weightx = 1;
+
+		gbcButton.gridx = 0;
+		gbcButton.gridy = 0;
+		gbcButton.anchor = GridBagConstraints.WEST;
+		pannelButton.add(btnBack, gbcButton);
+
+		gbcButton.gridx++;
+		gbcButton.anchor = GridBagConstraints.EAST;
+		pannelButton.add(btnSave, gbcButton);
+
+		setLayout(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.anchor = GridBagConstraints.CENTER;
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.weighty = 1;
+		gbc.weightx = 1;
+
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		add(panelEmployee, gbc);
+
+		gbc.gridy++;
+		add(panelPersonal, gbc);
+
+		gbc.gridy++;
+		gbc.weighty = 0;
+		add(pannelButton, gbc);
+	}
+
+	public byte[] getStaffIcon() {
+		return staffIcon;
+	}
+
+	public void setStaffIcon(byte[] staffIcon) {
+		this.staffIcon = staffIcon;
+	}
+
+	public CustomerFrameView getCustomerFrameView() {
+		return customerFrameView;
+	}
+
+	public JTextField getTxtUsername() {
+		return txtUsername;
+	}
+
+	public JPasswordField getPassword() {
+		return password;
+	}
+
+	public JPasswordField getRePassword() {
+		return rePassword;
+	}
+
+	public JTextField getTxtStaffId() {
+		return txtStaffId;
+	}
+
+	public JCheckBox getCbActive() {
+		return cbActive;
+	}
+
+	public JTextField getTxtFirstName() {
+		return txtFirstName;
+	}
+
+	public JTextField getTxtLastName() {
+		return txtLastName;
+	}
+
+	public JFormattedTextField getFtxtBirthDay() {
+		return ftxtBirthDay;
+	}
+
+	public JTextField getTxtPhone() {
+		return txtPhone;
+	}
+
+	public JRadioButton getRdbFemale() {
+		return rdbFemale;
+	}
+
+	public JRadioButton getRdbMale() {
+		return rdbMale;
+	}
+
+	public JComboBox<Integer> getCbbStoreId() {
+		return cbbStoreId;
+	}
+
+	public JComboBox<Integer> getCbbManagerId() {
+		return cbbManagerId;
+	}
+
+	public JButton getBtnOpen() {
+		return btnOpen;
+	}
+
+	public JButton getBtnBack() {
+		return btnBack;
+	}
+
+	public JButton getBtnSave() {
+		return btnSave;
+	}
+
+	public JLabel getLbIcon() {
+		return lbIcon;
+	}
+
+	public static void main(String[] args) {
+		new PersonalPanel(null);
+	}
+}

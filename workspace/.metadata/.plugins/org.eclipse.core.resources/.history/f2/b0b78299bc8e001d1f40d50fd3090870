@@ -1,0 +1,53 @@
+package view.staff;
+
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+
+@SuppressWarnings("serial")
+public class CustomerDialog extends JDialog {
+	private StaffFrameView staffFrameView;
+	public byte[] customerIcon;
+	
+	public JTextField txtFirstName;
+	public JRadioButton rdbMale;
+	public JRadioButton rdbFemale;
+	public JTextField txtLastName;
+	public JFormattedTextField ftxtBirthDay;
+	public JTextField txtPhone;
+	public JTextField txtEmail;
+	public JTextField txtAddress;
+	public JButton btnOpen;
+	public JButton btnBack;
+	public JButton btnSignUp;
+	public JLabel lbIcon;
+
+
+	public CustomerDialog(StaffFrameView staffFrameView) {
+		super(staffFrameView, true);
+		this.staffFrameView = staffFrameView;
+		initComponent();
+		initInformation();
+		pack();
+		setLocationRelativeTo(null);
+		setTitle("Order Dialog");
+		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		setEvent();
+		setVisible(true);
+	}
+
+	private void setEvent() {
+
+	}
+
+	private void initInformation() {
+
+	}
+
+	private void initComponent() {
+
+	}
+}

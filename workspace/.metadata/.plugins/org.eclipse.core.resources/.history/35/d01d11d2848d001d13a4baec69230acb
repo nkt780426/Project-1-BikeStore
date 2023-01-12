@@ -1,0 +1,167 @@
+package view.admin;
+
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.Insets;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
+
+import controller.admin.BrandDialogController;
+import dao.BrandsDao;
+import help.ImageAccept;
+import model.Brands;
+
+@SuppressWarnings("serial")
+public class BrandDialog extends JDialog {
+	private AdminFrameView adminFrameView;
+	private Brands brand;
+	private byte[] brandIcon;
+
+	private JTextField txtBrandId;
+	private JTextField txtBrandName;
+	private JTextField atxtDescribe;
+	private JButton btnBack;
+	private JButton btnSave;
+
+	public BrandDialog(AdminFrameView adminFrameView, Brands brand) {
+		super(adminFrameView, true);
+		this.adminFrameView = adminFrameView;
+		this.brand = brand;
+		initComponent();
+		setEvent();
+		if (brand != null) {
+			initInformation();
+		}
+		setTitle("Category View");
+		pack();
+		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		setLocationRelativeTo(null);
+		setVisible(true);
+	}
+
+	private void initInformation() {
+		if (brand.getBrandIcon() != null) {
+			staffIcon = staff.getStaffIcon();
+			try {
+				Image img = ImageAccept.createImageFromByteArray(staffIcon, ".jpg");
+				Image resize = ImageAccept.resize(img, 100, 100);
+				ImageIcon icon = new ImageIcon(resize);
+				lbIcon.setIcon(icon);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		txtStaffId.setText(String.valueOf(staff.getStaffId()));
+		if (staff.getActive()) {
+			cbActive.setSelected(true);
+		} else {
+			cbActive.setSelected(false);
+		}
+		cbbStoreId.setSelectedItem(staff.getStoreId());
+		cbbManagerId.setSelectedItem(staff.getManagerId());
+		txtFirstName.setText(staff.getFirstName());
+		txtLastName.setText(staff.getLastName());
+		if (staff.getSex()) {
+			rdbMale.setSelected(true);
+		} else {
+			rdbFemale.setSelected(true);
+		}
+		if (staff.getBirthDay() != null) {
+			SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+			String dateFormat = sdf.format(staff.getBirthDay());
+			ftxtBirthDay.setText(dateFormat);
+		}
+		txtPhone.setText(staff.getPhone());
+	}
+
+	private void setEvent() {
+		BrandDialogController categoryDialogController = new BrandDialogController(this);
+		btnBack.addActionListener(categoryDialogController);
+		btnSave.addActionListener(categoryDialogController);
+		txtBrandName.addFocusListener(categoryDialogController);
+	}
+
+	private void initComponent() {
+		Font font = new Font("Arial", Font.PLAIN, 16);
+		JLabel lbBrandId = new JLabel("Brand Id");
+		lbBrandId.setFont(font);
+		JLabel lbBrandName = new JLabel("Brand Name");
+		lbBrandName.setFont(font);
+		JLabel lbDescribe = new JLabel("Brand Name");
+		lbDescribe.setFont(font);
+		JLabel lbIcon = new JLabel();
+
+		txtBrandName = new JTextField(10);
+		txtBrandName.setFont(font);
+		btnBack = new JButton("Back", new ImageIcon(getClass().getResource("/icon/Go-back-icon16.png")));
+		btnBack.setFont(font);
+		btnSave = new JButton("Save", new ImageIcon(getClass().getResource("/icon/Save-icon16.png")));
+		btnSave.setFont(font);
+		// layout
+		setLayout(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.weighty = 1;
+
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.anchor = GridBagConstraints.WEST;
+		add(lbBrandName, gbc);
+
+		gbc.gridy++;
+		add(btnBack, gbc);
+
+		gbc.gridx = 1;
+		gbc.gridy = 0;
+		gbc.weightx = 1;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		add(txtBrandName, gbc);
+
+		gbc.gridy++;
+		gbc.weightx = 0;
+		gbc.fill = GridBagConstraints.NONE;
+		gbc.anchor = GridBagConstraints.EAST;
+		add(btnSave, gbc);
+	}
+
+	public AdminFrameView getAdminFrameView() {
+		return adminFrameView;
+	}
+
+	public Brands getBrand() {
+		return brand;
+	}
+
+	public JTextField getTxtBrandId() {
+		return txtBrandId;
+	}
+
+	public JTextField getTxtBrandName() {
+		return txtBrandName;
+	}
+
+	public JTextField getAtxtDescribe() {
+		return atxtDescribe;
+	}
+
+	public JButton getBtnBack() {
+		return btnBack;
+	}
+
+	public JButton getBtnSave() {
+		return btnSave;
+	}
+
+	public static void main(String[] args) {
+		new BrandDialog(null, null);
+	}
+
+}

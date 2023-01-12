@@ -1,0 +1,307 @@
+package view.staff;
+
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.util.ArrayList;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.border.LineBorder;
+
+import controller.staff.ShopPannelController;
+import dao.BrandsDao;
+import dao.CategoriesDao;
+import dao.StocksDao;
+
+@SuppressWarnings("serial")
+public class ShopPanel extends JPanel {
+	private StaffFrameView staffFrameView;
+	private ArrayList<ProductPanel> allProductPanel;
+	ArrayList<int[]> objects;
+
+	private JTextField txtProductName;
+	private JTextField txtStartPrice;
+	private JTextField txtEndPrice;
+	private JTextField txtYear;
+	private JComboBox<String> cbbBrand;
+	private JComboBox<String> cbbCategory;
+	private JButton btnSearch;
+	private JComboBox<String> cbbSortedBy;
+	private JButton btnTransport;
+	private JPanel product;
+	private CardLayout cardLayout;
+	private ProductInformationPanel informationPanel;
+
+	public ShopPanel(StaffFrameView staffFrameView) {
+		this.staffFrameView = staffFrameView;
+		initComponent();
+		setEvent();
+		loadDataToCombobox();
+		StocksDao dao = new StocksDao();
+		allProductPanel = new ArrayList<ProductPanel>();
+		objects = dao.selectAllProductRemaingAndSoldFromStock();
+		createProductPanel();
+		loadProduct();
+	}
+
+	public void createProductPanel() {
+		allProductPanel.clear();
+		for (int[] object : objects) {
+			allProductPanel.add(new ProductPanel(object, staffFrameView));
+		}
+	}
+
+	public void loadDataToCombobox() {
+		BrandsDao brandsDao = new BrandsDao();
+		cbbBrand.removeAll();
+		ArrayList<String> result = brandsDao.allName();
+		result.add(0, null);
+		for (String brandName : result) {
+			cbbBrand.addItem(brandName);
+		}
+		CategoriesDao categoriesDao = new CategoriesDao();
+		cbbCategory.removeAll();
+		result = categoriesDao.allName();
+		result.add(0, null);
+		for (String categoryName : result) {
+			cbbCategory.addItem(categoryName);
+		}
+	}
+
+	private void setEvent() {
+		ShopPannelController controller = new ShopPannelController(this);
+		btnSearch.addActionListener(controller);
+		btnTransport.addActionListener(controller);
+		cbbSortedBy.addItemListener(controller);
+	}
+
+	public void loadProduct() {
+		product.removeAll();
+		if (allProductPanel.size() != 0) {
+			GridBagConstraints gbc2 = new GridBagConstraints();
+			gbc2.anchor = GridBagConstraints.CENTER;
+			gbc2.weightx = 1;
+			int row = allProductPanel.size() / 3;
+			int index = 0;
+			for (int i = 0; i < row; i++) {
+				gbc2.gridx = 0;
+				gbc2.gridy = i;
+				product.add(allProductPanel.get(index), gbc2);
+				index++;
+
+				gbc2.gridx = 1;
+				gbc2.gridy = i;
+				product.add(allProductPanel.get(index), gbc2);
+				index++;
+
+				gbc2.gridx = 2;
+				gbc2.gridy = i;
+				product.add(allProductPanel.get(index), gbc2);
+				index++;
+			}
+
+			for (int i = 0; i < allProductPanel.size() - row * 3; i++) {
+				gbc2.gridx = i;
+				gbc2.gridy = row + 1;
+				product.add(allProductPanel.get(index), gbc2);
+				index++;
+			}
+			product.updateUI();
+		}
+	}
+
+	private void initComponent() {
+		JLabel lbBikeStores = new JLabel("BIKE STORES");
+		lbBikeStores.setFont(new Font("Arial", Font.BOLD, 24));
+		Font font = new Font("Arial", Font.PLAIN, 16);
+
+		// Filler component
+		JLabel lbProductName = new JLabel("Product Name");
+		lbProductName.setFont(font);
+		JLabel lbPrice = new JLabel("Price");
+		lbPrice.setFont(font);
+		JLabel lbTo = new JLabel("to");
+		lbTo.setFont(font);
+		JLabel lbBrand = new JLabel("Brand");
+		lbBrand.setFont(font);
+		JLabel lbCategory = new JLabel("Category");
+		lbCategory.setFont(font);
+		JLabel lbYear = new JLabel("Year");
+		lbYear.setFont(font);
+
+		txtProductName = new JTextField(7);
+		txtProductName.setFont(font);
+		txtStartPrice = new JTextField(4);
+		txtStartPrice.setFont(font);
+		txtEndPrice = new JTextField(4);
+		txtEndPrice.setFont(font);
+		txtYear = new JTextField(4);
+		txtYear.setFont(font);
+		cbbBrand = new JComboBox<String>();
+		cbbBrand.setFont(font);
+		cbbBrand.setSize(16, 10);
+		cbbCategory = new JComboBox<String>();
+		cbbCategory.setFont(font);
+		btnSearch = new JButton(new ImageIcon(getClass().getResource("/icon/Zoom-icon16.png")));
+
+		String[] sortedBy = { "Sorted By", "Best Sold", "Prices Increase", "Prices Decrease" };
+		cbbSortedBy = new JComboBox<String>(sortedBy);
+		cbbSortedBy.setFont(font);
+		// transport
+		JLabel lbTransport = new JLabel("Transprot  ");
+		lbTransport.setFont(new Font("Arial", Font.ITALIC, 14));
+		btnTransport = new JButton(new ImageIcon(getClass().getResource("/icon/truck-icon24.png")));
+		btnTransport.setFont(font);
+
+		// gop cac component filter vao panel filter
+		JPanel filter = new JPanel();
+		filter.setBackground(Color.WHITE);
+		filter.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+		filter.add(lbProductName);
+		filter.add(txtProductName);
+		filter.add(lbPrice);
+		filter.add(txtStartPrice);
+		filter.add(lbTo);
+		filter.add(txtEndPrice);
+		filter.add(lbYear);
+		filter.add(txtYear);
+		filter.add(lbBrand);
+		filter.add(cbbBrand);
+		filter.add(lbCategory);
+		filter.add(cbbCategory);
+		filter.add(btnSearch);
+
+		// layout
+		cardLayout = new CardLayout();
+		setLayout(cardLayout);
+		JPanel shop = new JPanel();
+		add(shop, "1");
+		informationPanel = new ProductInformationPanel(staffFrameView);
+		add(informationPanel, "2");
+		cardLayout.show(this, "1");
+		shop.setLayout(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.weightx = 1;
+
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.anchor = GridBagConstraints.CENTER;
+		shop.add(lbBikeStores, gbc);
+
+		gbc.gridy++;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		shop.add(filter, gbc);
+
+		gbc.gridy++;
+		gbc.fill = GridBagConstraints.NONE;
+		shop.add(cbbSortedBy, gbc);
+
+		gbc.gridy++;
+		gbc.weighty = 1;
+		product = new JPanel();
+		product.setLayout(new GridBagLayout());
+		product.setBorder(LineBorder.createBlackLineBorder());
+
+		JScrollPane scrollPane = new JScrollPane(product, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scrollPane.getVerticalScrollBar().setUnitIncrement(20);
+		scrollPane.setPreferredSize(new Dimension(970, 340));
+		shop.add(scrollPane, gbc);
+
+		gbc.gridy++;
+		gbc.weighty = 0;
+		gbc.weightx = 0;
+		gbc.anchor = GridBagConstraints.EAST;
+		JPanel transport = new JPanel();
+		transport.add(lbTransport);
+		transport.add(btnTransport);
+		shop.add(transport, gbc);
+	}
+
+	public ArrayList<ProductPanel> getAllProductPanel() {
+		return allProductPanel;
+	}
+
+	public void setAllProductPanel(ArrayList<ProductPanel> allProductPanel) {
+		this.allProductPanel = allProductPanel;
+	}
+
+	public ArrayList<int[]> getObjects() {
+		return objects;
+	}
+
+	public void setObjects(ArrayList<int[]> objects) {
+		this.objects = objects;
+	}
+
+	public JPanel getProduct() {
+		return product;
+	}
+
+	public void setProduct(JPanel product) {
+		this.product = product;
+	}
+
+	public StaffFrameView getCustomerFrameView() {
+		return staffFrameView;
+	}
+
+	public JTextField getTxtProductName() {
+		return txtProductName;
+	}
+
+	public JTextField getTxtStartPrice() {
+		return txtStartPrice;
+	}
+
+	public JTextField getTxtEndPrice() {
+		return txtEndPrice;
+	}
+
+	public JTextField getTxtYear() {
+		return txtYear;
+	}
+
+	public JComboBox<String> getCbbBrand() {
+		return cbbBrand;
+	}
+
+	public JComboBox<String> getCbbCategory() {
+		return cbbCategory;
+	}
+
+	public JButton getBtnSearch() {
+		return btnSearch;
+	}
+
+	public JComboBox<String> getCbbSortedBy() {
+		return cbbSortedBy;
+	}
+
+	public JButton getBtnTransport() {
+		return btnTransport;
+	}
+
+	public CardLayout getCardLayout() {
+		return cardLayout;
+	}
+
+	public ProductInformationPanel getInformationPanel() {
+		return informationPanel;
+	}
+
+}

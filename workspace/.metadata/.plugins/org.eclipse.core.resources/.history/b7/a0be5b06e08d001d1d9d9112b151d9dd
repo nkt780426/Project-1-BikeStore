@@ -1,0 +1,165 @@
+package dao;
+
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.ArrayList;
+
+import db_connection.JDBCUtil;
+import model.Customers;
+import model.Orders;
+
+public class OrdersDao {
+
+	public boolean insert(Orders order) {
+		boolean ketQua = false;
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "INSERT INTO sales.orders (customerId, orderStatus, orderDate, shippedDate, storeId, staffId) "
+					+ "OUTPUT inserted.orderId " + "VALUES (?,?,?,?,?,?)";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setInt(1, order.getCustomerId());
+			preparedStatement.setInt(2, order.getOrderStatus());
+			preparedStatement.setDate(3, order.getOrderDate());
+			if (order.getShippedDate() == null) {
+				preparedStatement.setNull(4, Types.DATE);
+			} else {
+				preparedStatement.setDate(4, order.getShippedDate());
+			}
+			preparedStatement.setInt(5, order.getStoreId());
+			preparedStatement.setInt(6, order.getStaffId());
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				order.setOrderId(rs.getInt("orderId"));
+				ketQua = true;
+			}
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return ketQua;
+	}
+
+	// khong update cac khoa ngoai nhu customerId, storeId, staffId
+	public boolean update(Orders order) {
+		int ketQua = 0;
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "UPDATE sales.orders " + "SET orderStatus =?, staffId=?, shippedDate=?" + " WHERE orderId= ?";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setInt(1, order.getOrderStatus());
+			preparedStatement.setInt(2, order.getStaffId());
+			if (order.getShippedDate() != null) {
+				preparedStatement.setDate(3, order.getShippedDate());
+			} else {
+				preparedStatement.setNull(3, Types.DATE);
+			}
+			preparedStatement.setInt(4, order.getOrderId());
+			ketQua = preparedStatement.executeUpdate();
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return ketQua > 0;
+	}
+
+	public int delete(Orders order) {
+		int ketQua = 0;
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "DELETE FROM sales.orders WHERE orderId= ?";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setInt(1, order.getOrderId());
+			ketQua = preparedStatement.executeUpdate();
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return ketQua;
+	}
+
+	public ArrayList<Orders> selectAll() {
+		ArrayList<Orders> ketQua = new ArrayList<Orders>();
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "SELECT*FROM sales.orders";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				int orderId = rs.getInt("orderId");
+				int customerId = rs.getInt("customerId");
+				int orderStatus = rs.getShort("orderStatus");
+				Date orderDate = rs.getDate("orderDate");
+				Date shippedDate = rs.getDate("shippedDate");
+				int storeId = rs.getInt("storeId");
+				int staffId = rs.getInt("staffId");
+				Orders Order = new Orders(orderId, customerId, orderStatus, orderDate, shippedDate, storeId, staffId);
+				ketQua.add(Order);
+			}
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return ketQua;
+	}
+
+	public boolean find(Orders order) {
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "SELECT*FROM sales.orders WHERE orderId=?";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setInt(1, order.getOrderId());
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				order.setOrderId(rs.getInt("orderId"));
+				order.setCustomerId(rs.getInt("customerId"));
+				order.setOrderStatus(rs.getInt("orderStatus"));
+				order.setOrderDate(rs.getDate("orderDate"));
+				order.setShippedDate(rs.getDate("shippedDate"));
+				order.setStoreId(rs.getInt("storeId"));
+				order.setStaffId(rs.getInt("staffId"));
+				return true;
+			}
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return false;
+
+	}
+
+	public ArrayList<Orders> findAllOrderOfStaff(Customers customer) {
+		ArrayList<Orders> ketQua = new ArrayList<Orders>();
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "SELECT*FROM sales.orders WHERE customerId = ?";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setInt(1, customer.getCustomerId());
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				int orderId = rs.getInt("orderId");
+				int customerId = rs.getInt("customerId");
+				int orderStatus = rs.getShort("orderStatus");
+				Date orderDate = rs.getDate("orderDate");
+				Date shippedDate = rs.getDate("shippedDate");
+				int storeId = rs.getInt("storeId");
+				int staffId = rs.getInt("staffId");
+				Orders Order = new Orders(orderId, customerId, orderStatus, orderDate, shippedDate, storeId, staffId);
+				ketQua.add(Order);
+			}
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return ketQua;
+	}
+}

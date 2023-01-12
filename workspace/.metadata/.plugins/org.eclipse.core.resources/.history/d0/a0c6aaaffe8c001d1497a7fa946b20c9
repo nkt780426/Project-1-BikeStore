@@ -1,0 +1,84 @@
+package controller.customer;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
+import javax.swing.JOptionPane;
+
+import controller.login.ShareDataBetweenFrame;
+import dao.CartTransaction;
+import dao.StocksDao;
+import model.Orders;
+import view.customer.CartPannel;
+import view.customer.xong.OrderDialogCustomer;
+
+public class CartPannelController implements ActionListener {
+	private CartPannel cartPannel;
+
+	public CartPannelController(CartPannel cartPannel) {
+		this.cartPannel = cartPannel;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == cartPannel.getBtnBuy()) {
+			try {
+
+				// lay du lieu tu table
+				// loc cac tich chon de mua => luu vao mang data
+				int row = cartPannel.getTable().getRowCount();
+				ArrayList<Object[]> data = new ArrayList<Object[]>();
+				for (int i = 0; i < row; i++) {
+					if ((Boolean) cartPannel.getTable().getValueAt(i, 0)) {
+						data.add(new Object[] { Integer.valueOf(cartPannel.getTable().getValueAt(i, 1).toString()),
+								Integer.valueOf(cartPannel.getTable().getValueAt(i, 2).toString()),
+								Integer.valueOf(cartPannel.getTable().getValueAt(i, 4).toString()),
+								new BigDecimal(cartPannel.getTable().getValueAt(i, 5).toString()) });
+					}
+				}
+				// sap xep mang data theo storeId
+				Collections.sort(data, new Comparator<Object[]>() {
+					@Override
+					public int compare(Object[] o1, Object[] o2) {
+						Integer buy1 = (Integer) o1[0];
+						Integer buy2 = (Integer) o2[0];
+						return buy1.compareTo(buy2);
+					}
+				});
+				CartTransaction cartTransaction = new CartTransaction();
+				ArrayList<Orders> orders = cartTransaction.Buy(data, ShareDataBetweenFrame.customer);
+				// load lại shoppanel, historypannel
+				cartPannel.getCustomerFrameView().getHistoryPanel().loadDataToTable();
+				StocksDao stocksDao = new StocksDao();
+				cartPannel.getCustomerFrameView().getShopPanel()
+						.setObjects(stocksDao.selectAllProductRemaingAndSoldFromStock());
+				cartPannel.getCustomerFrameView().getShopPanel().createProductPanel();
+				cartPannel.getCustomerFrameView().getShopPanel().loadProduct();
+				// xoa cac row da mua
+				boolean[] check = new boolean[row];
+				for (int i = 0; i < row; i++) {
+					if ((Boolean) cartPannel.getTable().getValueAt(i, 0)) {
+						check[i] = true;
+					}
+					check[i] = false;
+				}
+				// tạo các order và update các stock
+				for (Orders order : orders) {
+					new OrderDialogCustomer(cartPannel.getCustomerFrameView(), order);
+				}
+			} catch (Exception e1) {
+				JOptionPane.showMessageDialog(cartPannel, "Faild!");
+			}
+		}
+		if (e.getSource() == cartPannel.getBtnDelete()) {
+			if (cartPannel.getTable().getSelectedRow() != -1) {
+				cartPannel.getTblModel().removeRow(cartPannel.getTable().getSelectedRow());
+			}
+		}
+	}
+
+}

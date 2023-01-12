@@ -1,0 +1,176 @@
+package dao;
+
+import java.sql.Blob;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import javax.sql.rowset.serial.SerialBlob;
+
+import db_connection.JDBCUtil;
+import model.Brands;
+
+public class BrandsDao {
+
+	public int insert(Brands brand) {
+		int ketQua = 0;
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "INSERT INTO production.brands (brandName, brandIcon, describe) " + "OUTPUT inserted.brandId "
+					+ "VALUES (?,?,?)";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setString(1, brand.getBrandName());
+			if (brand.getBrandIcon() != null) {
+				Blob brandIcon = new SerialBlob(brand.getBrandIcon());
+				preparedStatement.setBlob(2, brandIcon);
+			} else {
+				preparedStatement.setBlob(2, (Blob) null);
+			}
+			preparedStatement.setString(3, brand.getDescribe());
+			ResultSet rs = preparedStatement.executeQuery();
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return ketQua;
+	}
+
+	public int update(Brands brand) {
+		int ketQua = 0;
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "UPDATE production.brands " + "SET brandName = ?, brandIcon=?, describe=? "
+					+ "WHERE brandId = ?";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setString(1, brand.getBrandName());
+			if (brand.getBrandIcon() != null) {
+				Blob brandIcon = new SerialBlob(brand.getBrandIcon());
+				preparedStatement.setBlob(2, brandIcon);
+			} else {
+				preparedStatement.setBlob(2, (Blob) null);
+			}
+			preparedStatement.setString(3, brand.getDescribe());
+			preparedStatement.setInt(4, brand.getBrandId());
+			ketQua = preparedStatement.executeUpdate();
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return ketQua;
+
+	}
+
+	public int delete(Brands brand) {
+		int ketQua = 0;
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "DELETE FROM production.brands " + "WHERE brandId = ?";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setInt(1, brand.getBrandId());
+			ketQua = preparedStatement.executeUpdate();
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return ketQua;
+
+	}
+
+	public ArrayList<Brands> selectAll() {
+		ArrayList<Brands> ketQua = new ArrayList<Brands>();
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "SELECT*FROM production.brands";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				Brands brand = new Brands();
+				brand.setBrandId(rs.getInt("brandId"));
+				brand.setBrandName(rs.getString("brandName"));
+				Blob brandIcon = rs.getBlob("brandIcon");
+				if (brandIcon != null) {
+					brand.setBrandIcon(brandIcon.getBytes(1, (int) brandIcon.length()));
+				}
+				brand.setDescribe(rs.getString("describe"));
+				ketQua.add(brand);
+			}
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return ketQua;
+
+	}
+
+	public boolean findById(Brands brand) {
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "SELECT*FROM production.brands WHERE brandId = ?";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setInt(1, brand.getBrandId());
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				brand.setBrandName(rs.getString("brandName"));
+				Blob brandIcon = rs.getBlob("brandIcon");
+				if (brandIcon != null) {
+					brand.setBrandIcon(brandIcon.getBytes(1, (int) brandIcon.length()));
+				}
+				brand.setDescribe(rs.getString("describe"));
+				return true;
+			}
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return false;
+	}
+
+	public boolean findByName(Brands brand) {
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "SELECT*FROM production.brands WHERE brandName = ?";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setString(1, brand.getBrandName());
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				brand.setBrandId(rs.getInt("brandId"));
+				Blob brandIcon = rs.getBlob("brandIcon");
+				if (brandIcon != null) {
+					brand.setBrandIcon(brandIcon.getBytes(1, (int) brandIcon.length()));
+				}
+				brand.setDescribe(rs.getString("describe"));
+				return true;
+			}
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return false;
+	}
+
+	public ArrayList<String> allName() {
+		ArrayList<String> result = new ArrayList<String>();
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "SELECT brandName FROM production.brands";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				result.add(rs.getString("brandName"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return result;
+	}
+
+}

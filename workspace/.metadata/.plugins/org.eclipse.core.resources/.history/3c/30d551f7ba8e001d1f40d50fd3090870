@@ -1,0 +1,361 @@
+package view.staff;
+
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.EventObject;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
+
+import controller.customer.OrderDialogCustomerController;
+import dao.OrdersItemsDao;
+import dao.StaffsDao;
+import dao.StoresDao;
+import model.OrderItems;
+import model.Orders;
+
+@SuppressWarnings("serial")
+public class OrderDialogCustomer extends JDialog {
+	private StaffFrameView customerFrameView;
+	private Orders order;
+	private byte[] orderIcon;
+	private JTextField txtOrderId;
+	private JTextField txtCustomerId;
+	private JFormattedTextField ftxtOderDate;
+	private JFormattedTextField ftxtShippedDate;
+	private JButton btnBack;
+	private JButton btnCancel;
+	private JComboBox<String> cbbOrderStatus;
+	private JComboBox<Integer> cbbStoreId;
+	private JComboBox<Integer> cbbStaffId;
+	private JTable table;
+	private JScrollPane scrollPane;
+	private DefaultTableModel tblModel;
+
+	public OrderDialogCustomer(StaffFrameView customerFrameView, Orders order) {
+		super(customerFrameView, true);
+		this.customerFrameView = customerFrameView;
+		this.order = order;
+		initComponent();
+		initTable();
+		loadDataToCombobox();
+		initInformation();
+		pack();
+		setLocationRelativeTo(null);
+		setTitle("Order Dialog");
+		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		setEvent();
+		setVisible(true);
+	}
+
+	public void setEvent() {
+		OrderDialogCustomerController orderDialogCustomerController = new OrderDialogCustomerController(this);
+		btnBack.addActionListener(orderDialogCustomerController);
+		btnCancel.addActionListener(orderDialogCustomerController);
+	}
+
+	public void loadDataToCombobox() {
+		StaffsDao staffsDao = new StaffsDao();
+		cbbStaffId.removeAll();
+		ArrayList<Integer> result = staffsDao.allIdFromStore(Integer.valueOf(cbbStoreId.getSelectedItem().toString()));
+		for (Integer integer : result) {
+			cbbStaffId.addItem(integer);
+		}
+	}
+
+	private void initInformation() {
+		txtOrderId.setText(String.valueOf(order.getOrderId()));
+		txtCustomerId.setText(String.valueOf(order.getCustomerId()));
+		cbbStoreId.setSelectedItem(order.getStoreId());
+		cbbStoreId.setSelectedItem(order.getStaffId());
+		cbbOrderStatus.setSelectedIndex(order.getOrderStatus() - 1);
+		if (cbbOrderStatus.getSelectedIndex() == 2 || cbbOrderStatus.getSelectedIndex() == 3) {
+			cbbOrderStatus.setEnabled(false);
+			ftxtShippedDate.setEnabled(false);
+			cbbStaffId.setEnabled(false);
+			btnCancel.setVisible(false);
+		}
+		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+		if (order.getShippedDate() != null) {
+			String dateFormat = sdf.format(order.getShippedDate());
+			ftxtShippedDate.setText(dateFormat);
+		}
+		String dateFormat = sdf.format(order.getOrderDate());
+		ftxtOderDate.setText(dateFormat);
+		loadDataToTable();
+	}
+
+	public void loadDataToTable() {
+		OrdersItemsDao dao = new OrdersItemsDao();
+		ArrayList<OrderItems> result = dao.findAllOrderItemOfOrder(order);
+		tblModel.setRowCount(0);
+		for (OrderItems item : result) {
+			tblModel.addRow(
+					new Object[] { item.getItemId(), item.getProductId(), item.getQuantity(), item.getListPrice() });
+		}
+	}
+
+	private void initTable() {
+		tblModel = new DefaultTableModel();
+		tblModel.setColumnIdentifiers(new String[] { "Item Id", "Product Id", "Quantity", "ListPrice" });
+		table.setModel(tblModel);
+	}
+
+	private void initComponent() {
+		// component
+		// label
+		Font font = new Font("Arial", Font.PLAIN, 16);
+		JLabel lbOrderId = new JLabel("Order ID");
+		lbOrderId.setFont(font);
+		JLabel lbCustomerId = new JLabel("Customer Id");
+		lbCustomerId.setFont(font);
+		JLabel lbStoreId = new JLabel("Store ID");
+		lbStoreId.setFont(font);
+		JLabel lbStaffId = new JLabel("Staff ID");
+		lbStaffId.setFont(font);
+		JLabel lbOrderStatus = new JLabel("Order Status");
+		lbOrderStatus.setFont(font);
+		JLabel lbOrderDate = new JLabel("Order Date");
+		lbOrderDate.setFont(font);
+		JLabel lbShippedDate = new JLabel("Shipped Date");
+		lbShippedDate.setFont(font);
+		// textfield
+		txtOrderId = new JTextField(10);
+		txtOrderId.setFont(font);
+		txtCustomerId = new JTextField(10);
+		txtCustomerId.setFont(font);
+		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+		ftxtOderDate = new JFormattedTextField(sdf);
+		ftxtOderDate.setToolTipText("DD-MM-YYYY");
+		ftxtOderDate.setFont(font);
+		ftxtShippedDate = new JFormattedTextField(sdf);
+		ftxtShippedDate.setToolTipText("DD-MM-YYYY");
+		ftxtShippedDate.setFont(font);
+		// button
+		btnBack = new JButton("Back", new ImageIcon(getClass().getResource("/icon/Go-back-icon16.png")));
+		btnBack.setFont(font);
+		btnCancel = new JButton("Cancel", new ImageIcon(getClass().getResource("/icon/Button-Close-icon16.png")));
+		btnCancel.setFont(font);
+		// Combobox
+		String[] status = new String[] { "1.Pending", "2.Processing", "3.Rejected", "4.Completed" };
+		cbbOrderStatus = new JComboBox<String>(status);
+		cbbOrderStatus.setFont(font);
+		cbbStoreId = new JComboBox<Integer>();
+		cbbStoreId.setFont(font);
+		cbbStaffId = new JComboBox<Integer>();
+		cbbStaffId.setFont(font);
+
+		StoresDao storesDao = new StoresDao();
+		ArrayList<Integer> result = storesDao.allId();
+		for (Integer integer : result) {
+			cbbStoreId.addItem(integer);
+		}
+		// table
+		table = new JTable() {
+			public boolean editCellAt(int row, int column, EventObject e) {
+				return false;
+			}
+		};
+		table.setPreferredScrollableViewportSize(new Dimension(500, 150));
+		table.setAutoCreateRowSorter(true);
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		scrollPane = new JScrollPane(table, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+		// component status
+		txtOrderId.setEditable(false);
+		txtCustomerId.setEditable(false);
+		cbbStaffId.setEnabled(false);
+		cbbStoreId.setEnabled(false);
+		cbbOrderStatus.setEnabled(false);
+		ftxtOderDate.setEnabled(false);
+		ftxtShippedDate.setEnabled(false);
+
+		// layout
+		setLayout(null);
+		JPanel border = new JPanel();
+		border.setBorder(new EmptyBorder(12, 12, 12, 12));
+		// panelEmployee
+		JPanel panelOrder = new JPanel();
+		panelOrder.setBorder(new TitledBorder("Order"));
+		panelOrder.setLayout(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
+
+		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.weighty = 1;
+
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.anchor = GridBagConstraints.WEST;
+		panelOrder.add(lbOrderId, gbc);
+
+		gbc.gridx = 0;
+		gbc.gridy = 1;
+		panelOrder.add(lbStoreId, gbc);
+
+		gbc.gridx = 0;
+		gbc.gridy = 2;
+		panelOrder.add(lbOrderStatus, gbc);
+
+		gbc.gridx = 0;
+		gbc.gridy = 3;
+		panelOrder.add(lbOrderDate, gbc);
+
+		gbc.gridx = 2;
+		gbc.gridy = 0;
+		panelOrder.add(lbCustomerId, gbc);
+
+		gbc.gridy++;
+		panelOrder.add(lbStaffId, gbc);
+
+		gbc.gridy = 3;
+		panelOrder.add(lbShippedDate, gbc);
+
+		gbc.gridx = 1;
+		gbc.gridy = 0;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.weightx = 1;
+		panelOrder.add(txtOrderId, gbc);
+
+		gbc.gridx = 1;
+		gbc.gridy = 1;
+		panelOrder.add(cbbStoreId, gbc);
+
+		gbc.gridx = 1;
+		gbc.gridy = 2;
+		panelOrder.add(cbbOrderStatus, gbc);
+
+		gbc.gridx = 1;
+		gbc.gridy = 3;
+		panelOrder.add(ftxtOderDate, gbc);
+
+		gbc.gridx = 3;
+		gbc.gridy = 0;
+		panelOrder.add(txtCustomerId, gbc);
+
+		gbc.gridy = 1;
+		panelOrder.add(cbbStaffId, gbc);
+
+		gbc.gridy += 2;
+		panelOrder.add(ftxtShippedDate, gbc);
+
+		// panelOrderItems
+		JPanel panelOrderItems = new JPanel();
+		panelOrderItems.setBorder(new TitledBorder("Order Items"));
+		panelOrderItems.add(scrollPane);
+
+		// panel button
+		JPanel pannel = new JPanel();
+		pannel.setLayout(new GridBagLayout());
+		gbc.fill = GridBagConstraints.NONE;
+		gbc.weighty = 0;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		pannel.add(btnBack, gbc);
+
+		gbc.gridx++;
+		gbc.anchor = GridBagConstraints.EAST;
+		pannel.add(btnCancel, gbc);
+
+		// set layout
+		setLayout(new GridBagLayout());
+		gbc.anchor = GridBagConstraints.CENTER;
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.weighty = 1;
+
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		add(panelOrder, gbc);
+
+		gbc.gridy++;
+		add(panelOrderItems, gbc);
+
+		gbc.gridy++;
+		gbc.weighty = 0;
+		add(pannel, gbc);
+	}
+
+	public Orders getOrder() {
+		return order;
+	}
+
+	public void setOrder(Orders order) {
+		this.order = order;
+	}
+
+	public byte[] getOrderIcon() {
+		return orderIcon;
+	}
+
+	public void setOrderIcon(byte[] orderIcon) {
+		this.orderIcon = orderIcon;
+	}
+
+	public JTextField getTxtOrderId() {
+		return txtOrderId;
+	}
+
+	public JTextField getTxtCustomerId() {
+		return txtCustomerId;
+	}
+
+	public JFormattedTextField getFtxtOderDate() {
+		return ftxtOderDate;
+	}
+
+	public JFormattedTextField getFtxtShippedDate() {
+		return ftxtShippedDate;
+	}
+
+	public JButton getBtnBack() {
+		return btnBack;
+	}
+
+	public JButton getBtnCacel() {
+		return btnCancel;
+	}
+
+	public JComboBox<String> getCbbOrderStatus() {
+		return cbbOrderStatus;
+	}
+
+	public JComboBox<Integer> getCbbStoreId() {
+		return cbbStoreId;
+	}
+
+	public JComboBox<Integer> getCbbStaffId() {
+		return cbbStaffId;
+	}
+
+	public JTable getTable() {
+		return table;
+	}
+
+	public JScrollPane getScrollPane() {
+		return scrollPane;
+	}
+
+	public StaffFrameView getCustomerFrameView() {
+		return customerFrameView;
+	}
+
+}

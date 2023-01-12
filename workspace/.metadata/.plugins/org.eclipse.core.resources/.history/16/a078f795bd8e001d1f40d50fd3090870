@@ -1,0 +1,216 @@
+package view.staff;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.text.SimpleDateFormat;
+
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+import javax.swing.border.LineBorder;
+
+import controller.admin.CustomerDialogAdminController;
+
+@SuppressWarnings("serial")
+public class CustomerDialog extends JDialog {
+	private StaffFrameView staffFrameView;
+	public byte[] customerIcon;
+
+	public JTextField txtCustomerId;
+	public JTextField txtFirstName;
+	public JRadioButton rdbMale;
+	public JRadioButton rdbFemale;
+	public JTextField txtLastName;
+	public JFormattedTextField ftxtBirthDay;
+	public JTextField txtPhone;
+	public JTextField txtEmail;
+	public JTextField txtAddress;
+	public JButton btnOpen;
+	public JButton btnBack;
+	public JButton btnSignUp;
+	public JLabel lbIcon;
+
+	public CustomerDialog(StaffFrameView staffFrameView) {
+		super(staffFrameView, true);
+		this.staffFrameView = staffFrameView;
+		initComponent();
+		initInformation();
+		pack();
+		setLocationRelativeTo(null);
+		setTitle("Order Dialog");
+		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		setEvent();
+		setVisible(true);
+	}
+
+	private void setEvent() {
+		CustomerDialogAdminController controller = new CustomerDialogAdminController(this);
+	}
+
+	private void initInformation() {
+
+	}
+
+	private void initComponent() {
+		// component
+
+		Font font = new Font("Arial", Font.PLAIN, 16);
+		JLabel lbCustomerId = new JLabel("Customer Id");
+		lbCustomerId.setFont(font);
+		txtCustomerId = new JTextField(10);
+		txtCustomerId.setFont(font);
+		lbIcon = new JLabel(new ImageIcon(getClass().getResource("/icon/person72.png")));
+		lbIcon.setBorder(new LineBorder(Color.CYAN));
+		lbIcon.setPreferredSize(new Dimension(100, 100));
+
+		JLabel lbFirstName = new JLabel("FirstName");
+		lbFirstName.setFont(font);
+		txtFirstName = new JTextField(20);
+		txtFirstName.setFont(font);
+		JLabel lbLastName = new JLabel("Last Name");
+		lbLastName.setFont(font);
+		txtLastName = new JTextField(20);
+		txtLastName.setFont(font);
+		JLabel lbSex = new JLabel("Sex");
+		lbSex.setFont(font);
+		rdbMale = new JRadioButton("Male");
+		rdbMale.setFont(font);
+		rdbFemale = new JRadioButton("Female");
+		rdbFemale.setFont(font);
+		JLabel lbBirthDay = new JLabel("Birth Day");
+		lbBirthDay.setFont(font);
+		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+
+		sdf.setLenient(false);
+		ftxtBirthDay = new JFormattedTextField(sdf);
+		ftxtBirthDay.setFont(font);
+		JLabel lbPhone = new JLabel("Phone");
+		lbPhone.setFont(font);
+		txtPhone = new JTextField(10);
+		txtPhone.setFont(font);
+		JLabel lbEmail = new JLabel("Email");
+		lbEmail.setFont(font);
+		txtEmail = new JTextField(10);
+		txtEmail.setFont(font);
+		JLabel lbAddress = new JLabel("Address");
+		lbAddress.setFont(font);
+		txtAddress = new JTextField(10);
+		txtAddress.setFont(font);
+
+		btnBack = new JButton("Back", new ImageIcon(getClass().getResource("/icon/Go-back-icon16.png")));
+		btnBack.setFont(font);
+
+		// component status
+
+		ButtonGroup buttonGroup = new ButtonGroup();
+		buttonGroup.add(rdbMale);
+		buttonGroup.add(rdbFemale);
+		rdbMale.setSelected(true);
+
+		rdbFemale.setEnabled(false);
+		rdbMale.setEnabled(false);
+		txtCustomerId.setEditable(false);
+		txtFirstName.setEditable(false);
+		txtLastName.setEditable(false);
+		ftxtBirthDay.setEditable(false);
+		txtEmail.setEditable(false);
+		txtPhone.setEditable(false);
+		txtAddress.setEditable(false);
+		// layout
+		setLayout(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.weighty = 1;
+		gbc.weightx = 1;
+
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.anchor = GridBagConstraints.WEST;
+		add(lbCustomerId, gbc);
+
+		gbc.gridx = 1;
+		gbc.gridwidth = 2;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		add(txtCustomerId, gbc);
+
+		gbc.gridx = 3;
+		gbc.fill = GridBagConstraints.NONE;
+		gbc.anchor = GridBagConstraints.CENTER;
+		add(lbIcon, gbc);
+
+		// thêm label
+		gbc.gridx = 0;
+		gbc.gridy = 1;
+		gbc.gridwidth = 1;
+		gbc.anchor = GridBagConstraints.WEST;
+		add(lbFirstName, gbc);
+
+		gbc.gridy++;
+		add(lbSex, gbc);
+
+		gbc.gridy++;
+		add(lbPhone, gbc);
+
+		gbc.gridy++;
+		add(lbAddress, gbc);
+
+		gbc.gridx = 3;
+		gbc.gridy = 1;
+		add(lbLastName, gbc);
+
+		gbc.gridy++;
+		add(lbBirthDay, gbc);
+
+		gbc.gridy++;
+		add(lbEmail, gbc);
+
+		// thêm txt+btn
+		gbc.gridx = 1;
+		gbc.gridy--;
+		add(rdbMale, gbc);
+
+		gbc.gridx++;
+		add(rdbFemale, gbc);
+
+		gbc.gridx = 4;
+		gbc.gridy = 1;
+		add(txtLastName, gbc);
+
+		gbc.gridy++;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		add(ftxtBirthDay, gbc);
+
+		gbc.gridy++;
+		add(txtEmail, gbc);
+
+		gbc.gridx = 1;
+		gbc.gridy = 1;
+		gbc.gridwidth = 2;
+		add(txtFirstName, gbc);
+
+		gbc.gridy += 2;
+		add(txtPhone, gbc);
+
+		gbc.gridwidth = 1;
+
+		gbc.gridx = 1;
+		gbc.gridy = 4;
+		gbc.gridwidth = 4;
+		add(txtAddress, gbc);
+
+		gbc.gridx = 0;
+		gbc.gridy++;
+		gbc.gridwidth = 1;
+		gbc.fill = GridBagConstraints.NONE;
+		add(btnBack, gbc);
+	}
+}

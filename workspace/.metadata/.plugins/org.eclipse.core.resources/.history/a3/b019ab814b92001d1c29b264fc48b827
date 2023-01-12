@@ -1,0 +1,31 @@
+package controller.staff;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+
+import view.staff.CustomerDialog;
+
+public class CustomerDialogController implements ActionListener, FocusListener {
+	private CustomerDialog customerDialog;
+
+	public CustomerDialogController(CustomerDialog customerDialog) {
+		this.customerDialog = customerDialog;
+	}
+
+	@Override
+	public void focusGained(FocusEvent e) {
+
+	}
+
+	@Override
+	public void focusLost(FocusEvent e) {
+
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+	}
+
+}

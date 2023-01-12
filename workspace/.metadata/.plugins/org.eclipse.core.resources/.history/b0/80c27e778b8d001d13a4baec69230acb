@@ -1,0 +1,64 @@
+package controller.admin;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.util.ArrayList;
+
+import javax.swing.JComponent;
+import javax.swing.JOptionPane;
+
+import dao.CategoriesDao;
+import help.DataValidator;
+import model.Brands;
+import model.Categories;
+import view.admin.BrandDialog;
+
+public class BrandDialogController implements ActionListener, FocusListener {
+	private BrandDialog brandDialog;
+
+	public BrandDialogController(BrandDialog brandDialog) {
+		this.brandDialog = brandDialog;
+	}
+
+	@Override
+	public void focusGained(FocusEvent e) {
+		brandDialog.getTxtBrandName().setText(brandDialog.getTxtBrandName().getText().trim());
+	}
+
+	@Override
+	public void focusLost(FocusEvent e) {
+		if (e.getSource() == brandDialog.getTxtBrandName()) {
+			brandDialog.getTxtBrandName().setText(brandDialog.getTxtBrandName().getText().trim());
+		}
+		if (e.getSource() == brandDialog.getAtxtDescribe()) {
+			brandDialog.getAtxtDescribe().setText(brandDialog.getAtxtDescribe().getText().trim());
+		}
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == brandDialog.getBtnBack()) {
+			brandDialog.dispose();
+		}
+		if (e.getSource() == brandDialog.getBtnSave()) {
+			ArrayList<JComponent> check = new ArrayList<>();
+			check.add(brandDialog.getTxtBrandName());
+			if (DataValidator.checkEmpty(brandDialog, check)) {
+				Brands brand = new Brands();
+				brand.setBrandName(brandDialog.getTxtBrandName().getText());
+				CategoriesDao categoriesDao = new CategoriesDao();
+				if (categoriesDao.insert(brand) > 0) {
+					JOptionPane.showMessageDialog(brandDialog, "Success!");
+					brandDialog.dispose();
+				} else {
+					JOptionPane.showMessageDialog(brandDialog, "Faild!");
+				}
+			} else {
+				JOptionPane.showMessageDialog(brandDialog, "Category Name can't be left mark!");
+			}
+		}
+	}
+
+}

@@ -1,0 +1,177 @@
+package dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import db_connection.JDBCUtil;
+import model.Products;
+import model.Stocks;
+
+public class StocksDao {
+
+	public boolean insert(Stocks stock) {
+		int ketQua = 0;
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "INSERT INTO production.stocks " + "VALUES (?,?,?)";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setInt(1, stock.getStoreId());
+			preparedStatement.setInt(2, stock.getProducId());
+			preparedStatement.setInt(3, stock.getQuantity());
+			ketQua = preparedStatement.executeUpdate();
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		if (ketQua == 0)
+			return false;
+		return true;
+
+	}
+
+	// chi update quantity khong update duoc storeId va productId
+	public boolean update(Stocks stock) {
+		int ketQua = 0;
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "UPDATE production.stocks " + "SET quantity = ? " + "WHERE storeId = ? AND productId = ?";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setInt(1, stock.getQuantity());
+			preparedStatement.setInt(2, stock.getStoreId());
+			preparedStatement.setInt(3, stock.getProducId());
+			ketQua = preparedStatement.executeUpdate();
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		if (ketQua == 0)
+			return false;
+		return true;
+	}
+
+	public boolean delete(Stocks stock) {
+		int ketQua = 0;
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "DELETE FROM production.stocks " + "WHERE storeId = ? AND productId = ?";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setInt(1, stock.getStoreId());
+			preparedStatement.setInt(2, stock.getProducId());
+			ketQua = preparedStatement.executeUpdate();
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		if (ketQua > 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	// lay tat ca cac mat hang
+	public ArrayList<int[]> selectAllProductRemaingAndSoldFromStock() {
+		ArrayList<int[]> ketQua = new ArrayList<int[]>();
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "SELECT a.productId, a.quantity 'remaining', b.sold " + "FROM production.stocks a left join "
+					+ "(SELECT productid, sum(quantity) 'sold' " + "FROM sales.orderitems WHERE orderID in"
+					+ "( SELECT orderID FROM sales.orders WHERE orderStatus<>3) GROUP BY productId)"
+					+ " b on a.productId = b.productId";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				int productId = rs.getInt("ProductId");
+				int remaining = rs.getInt("remaining");
+				int sold;
+
+				if (rs.getObject("sold") == null) {
+					sold = 0;
+				} else {
+					sold = rs.getInt("sold");
+				}
+				ketQua.add(new int[] { productId, remaining, sold });
+			}
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return ketQua;
+	}
+
+	public boolean find(Stocks stock) {
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "SELECT*FROM production.stocks WHERE storeId = ? and productId = ?";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setInt(1, stock.getStoreId());
+			preparedStatement.setInt(2, stock.getProducId());
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				stock.setQuantity(rs.getInt("quantity"));
+				return true;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return false;
+	}
+
+	// tim kiem 1 mat hang thuoc 1 cua hang
+	public int[] selectProductRemaingAndSoldFromStock(int productId) {
+		Connection connection = JDBCUtil.getConnection();
+		int[] result = new int[3];
+		try {
+			String sql = "SELECT a.remaining, b.sold FROM " + "(SELECT sum(quantity) 'remaining' "
+					+ "FROM production.stocks WHERE productId =?) a, " + "(SELECT sum (quantity) 'sold' "
+					+ "FROM sales.orderitems "
+					+ "WHERE orderId in (SELECT orderId FROM sales.orders WHERE orderStatus<>3) and productId =?) b";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setInt(1, productId);
+			preparedStatement.setInt(2, productId);
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				result[0] = productId;
+				result[1] = rs.getInt("remaining");
+				if (rs.getObject("sold") == null) {
+					result[2] = 0;
+				} else {
+					result[3] = rs.getInt("sold");
+				}
+			}
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return result;
+	}
+
+	public ArrayList<Stocks> findAllStookHasProduct(Products product) {
+		ArrayList<Stocks> result = new ArrayList<Stocks>();
+		Connection connection = JDBCUtil.getConnection();
+		try {
+			String sql = "SELECT*FROM production.stocks WHERE productId = ?";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setInt(1, product.getProductId());
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				int storeId = rs.getInt("storeid");
+				int quantity = rs.getInt("quantity");
+				result.add(new Stocks(storeId, product.getProductId(), quantity));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		JDBCUtil.closeConnection(connection);
+		return result;
+	}
+}

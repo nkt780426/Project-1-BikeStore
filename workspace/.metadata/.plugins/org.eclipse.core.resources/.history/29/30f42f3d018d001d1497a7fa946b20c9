@@ -1,0 +1,164 @@
+package view.customer.xong;
+
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumn;
+
+import controller.customer.CartPannelController;
+
+@SuppressWarnings("serial")
+public class CartPannel extends JPanel {
+	private CustomerFrameView customerFrameView;
+	private JTable table;
+	private DefaultTableModel tblModel;
+	private ArrayList<Object[]> data;
+	private JButton btnDelete;
+	private JButton btnBuy;
+
+	public CartPannel(CustomerFrameView customerFrameView) {
+		this.customerFrameView = customerFrameView;
+		initComponent();
+		initTable();
+		setEvent();
+	}
+
+	private void initTable() {
+		tblModel = new DefaultTableModel() {
+			public Class<?> getColumnClass(int column) {
+				switch (column) {
+				case 0:
+					return Boolean.class;
+				case 1:
+					return Integer.class;
+				case 2:
+					return Integer.class;
+				case 3:
+					return Integer.class;
+				case 4:
+					return Integer.class;
+				case 5:
+					return BigDecimal.class;
+				default:
+					return String.class;
+				}
+			}
+		};
+		tblModel.setRowCount(0);
+		tblModel.setColumnIdentifiers(
+				new String[] { "Buy", "Store ID", "Product ID", "ProductName", "Quantity", "ListPrice" });
+		table.setModel(tblModel);
+		TableColumn column0 = table.getColumnModel().getColumn(0);
+		TableColumn column1 = table.getColumnModel().getColumn(1);
+		TableColumn column2 = table.getColumnModel().getColumn(2);
+		TableColumn column3 = table.getColumnModel().getColumn(3);
+		TableColumn column4 = table.getColumnModel().getColumn(4);
+		TableColumn column5 = table.getColumnModel().getColumn(5);
+
+		column0.setPreferredWidth(20);
+		column1.setPreferredWidth(40);
+		column2.setPreferredWidth(40);
+		column3.setPreferredWidth(500);
+		column4.setPreferredWidth(100);
+
+		DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
+		renderer.setHorizontalAlignment(JLabel.CENTER);
+
+		column1.setCellRenderer(renderer);
+		column2.setCellRenderer(renderer);
+		column4.setCellRenderer(renderer);
+		column5.setCellRenderer(renderer);
+		renderer.setHorizontalAlignment(JLabel.LEFT);
+		column3.setCellRenderer(renderer);
+
+		JTableHeader header = table.getTableHeader();
+		((DefaultTableCellRenderer) header.getDefaultRenderer()).setHorizontalAlignment(JLabel.CENTER);
+	}
+
+	private void setEvent() {
+		CartPannelController cartPannelController = new CartPannelController(this);
+		btnBuy.addActionListener(cartPannelController);
+		btnDelete.addActionListener(cartPannelController);
+	}
+
+	private void initComponent() {
+		// component
+		Font font = new Font("Arial", Font.PLAIN, 16);
+		// table
+		table = new JTable();
+		table.setAutoCreateRowSorter(true);
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		JScrollPane scrollPane = new JScrollPane(table, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scrollPane.getVerticalScrollBar().setUnitIncrement(10);
+		// btn
+		btnBuy = new JButton("Buy", new ImageIcon(getClass().getResource("/icon/cash-icon16.png")));
+		btnBuy.setFont(font);
+		btnDelete = new JButton("Delete", new ImageIcon(getClass().getResource("/icon/Button-Close-icon16.png")));
+		btnDelete.setFont(font);
+		// layout
+		setLayout(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(5, 5, 5, 5);
+
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.weightx = 1;
+		gbc.weighty = 1;
+		gbc.gridwidth = 2;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.anchor = GridBagConstraints.NORTH;
+		add(scrollPane, gbc);
+
+		gbc.gridy++;
+		gbc.gridwidth = 1;
+		gbc.weighty = 0;
+		gbc.fill = GridBagConstraints.NONE;
+		gbc.anchor = GridBagConstraints.EAST;
+		add(btnBuy, gbc);
+
+		gbc.gridx++;
+		gbc.anchor = GridBagConstraints.WEST;
+		add(btnDelete, gbc);
+	}
+
+	public CustomerFrameView getCustomerFrameView() {
+		return customerFrameView;
+	}
+
+	public JTable getTable() {
+		return table;
+	}
+
+	public DefaultTableModel getTblModel() {
+		return tblModel;
+	}
+
+	public ArrayList<Object[]> getData() {
+		return data;
+	}
+
+	public JButton getBtnDelete() {
+		return btnDelete;
+	}
+
+	public JButton getBtnBuy() {
+		return btnBuy;
+	}
+
+}

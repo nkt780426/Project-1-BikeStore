@@ -1,0 +1,175 @@
+package controller.staff;
+
+import java.awt.Color;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.io.File;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileSystemView;
+
+import controller.login.ShareDataBetweenFrame;
+import dao.StocksDao;
+import dao.TransportTransaction;
+import help.DataValidator;
+import help.ImageAccept;
+import model.Orders;
+import view.staff.CustomerDialog;
+import view.staff.OrderDialogCustomer;
+import view.staff.StaffFrameView;
+
+public class CustomerDialogController implements ActionListener, FocusListener {
+	private CustomerDialog customerDialog;
+
+	public CustomerDialogController(CustomerDialog customerDialog) {
+		this.customerDialog = customerDialog;
+	}
+
+	@Override
+	public void focusGained(FocusEvent e) {
+		if (e.getSource() == customerDialog.getBtnTransport()) {
+			ArrayList<JComponent> list = new ArrayList<JComponent>();
+			list.add(customerDialog.getTxtFirstName());
+			list.add(customerDialog.getTxtLastName());
+			list.add(customerDialog.getTxtPhone());
+			list.add(customerDialog.getTxtAddress());
+			if (!DataValidator.checkEmpty(customerDialog, list)) {
+				JOptionPane.showMessageDialog(customerDialog, "Texts which be marked with *, cannot be left blank!");
+			}
+		}
+	}
+
+	@Override
+	public void focusLost(FocusEvent e) {
+		if (e.getSource() == customerDialog.getTxtFirstName()) {
+			customerDialog.getTxtFirstName().setText(customerDialog.getTxtFirstName().getText().trim());
+		}
+		if (e.getSource() == customerDialog.getTxtLastName()) {
+			customerDialog.getTxtLastName().setText(customerDialog.getTxtLastName().getText().trim());
+		}
+		if (e.getSource() == customerDialog.getTxtPhone()) {
+			customerDialog.getTxtPhone().setText(customerDialog.getTxtPhone().getText().trim());
+			if (customerDialog.getTxtPhone().getText().length() != 0) {
+				DataValidator.checkPhone(customerDialog, customerDialog.getTxtPhone());
+			} else {
+				customerDialog.getTxtPhone().setBackground(Color.WHITE);
+			}
+		}
+		if (e.getSource() == customerDialog.getTxtEmail()) {
+			customerDialog.getTxtEmail().setText(customerDialog.getTxtEmail().getText().trim());
+			if (customerDialog.getTxtEmail().getText().length() != 0) {
+				DataValidator.checkEmail(customerDialog, customerDialog.getTxtEmail());
+			} else {
+				customerDialog.getTxtEmail().setBackground(Color.WHITE);
+			}
+		}
+		if (e.getSource() == customerDialog.getTxtAddress()) {
+			customerDialog.getTxtAddress().setText(customerDialog.getTxtAddress().getText().trim());
+		}
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == customerDialog.getBtnBack()) {
+			StaffFrameView staffFrameView = customerDialog.getStaffFrameView();
+			staffFrameView.getCardLayout().previous(staffFrameView.getPanelCenter());
+		}
+		if (e.getSource() == customerDialog.getBtnOpen()) {
+			JFileChooser fileChooser = new JFileChooser(FileSystemView.getFileSystemView());
+			fileChooser.setFileFilter(new FileFilter() {
+
+				@Override
+				public String getDescription() {
+					return "Image File (*.jpg)";
+				}
+
+				@Override
+				public boolean accept(File f) {
+					if (f.isDirectory()) {
+						return true;
+					} else {
+						return f.getName().toLowerCase().endsWith(".jpg");
+					}
+				}
+			});
+			if (fileChooser.showOpenDialog(customerDialog) == JFileChooser.CANCEL_OPTION) {
+				return;
+			}
+			File file = fileChooser.getSelectedFile();
+			ImageIcon icon = new ImageIcon(file.getPath());
+			Image img = ImageAccept.resize(icon.getImage(), 100, 100);
+			ImageIcon resizeIcon = new ImageIcon(img);
+			customerDialog.getLbIcon().setIcon(resizeIcon);
+			try {
+				customerDialog.setCustomerIcon(ImageAccept.toByteArray(img, "jpg"));
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
+		if (e.getSource() == customerDialog.getBtnTransport()) {
+			try {
+
+				// lay du lieu tu table
+				// loc cac tich chon de mua => luu vao mang data
+				int row = transportPannel.getTable().getRowCount();
+				ArrayList<Object[]> data = new ArrayList<Object[]>();
+				for (int i = 0; i < row; i++) {
+					if ((Boolean) transportPannel.getTable().getValueAt(i, 0)) {
+						data.add(new Object[] { Integer.valueOf(transportPannel.getTable().getValueAt(i, 1).toString()),
+								Integer.valueOf(transportPannel.getTable().getValueAt(i, 2).toString()),
+								Integer.valueOf(transportPannel.getTable().getValueAt(i, 4).toString()),
+								new BigDecimal(transportPannel.getTable().getValueAt(i, 5).toString()) });
+					}
+				}
+				// sap xep mang data theo storeId
+				Collections.sort(data, new Comparator<Object[]>() {
+					@Override
+					public int compare(Object[] o1, Object[] o2) {
+						Integer buy1 = (Integer) o1[0];
+						Integer buy2 = (Integer) o2[0];
+						return buy1.compareTo(buy2);
+					}
+				});
+				TransportTransaction transportTransaction = new TransportTransaction();
+				ArrayList<Orders> orders = transportTransaction.Buy(data, ShareDataBetweenFrame.staff);
+				// load lại shoppanel, historypannel
+				transportPannel.getStaffFrameView().getHistoryPanel().loadDataToTable();
+				transportPannel.getStaffFrameView().getShopPanel().getCardLayout()
+						.show(transportPannel.getStaffFrameView().getShopPanel(), "1");
+				StocksDao stocksDao = new StocksDao();
+				transportPannel.getStaffFrameView().getShopPanel()
+						.setObjects(stocksDao.selectAllProductRemaingAndSoldFromStock());
+				transportPannel.getStaffFrameView().getShopPanel().createProductPanel();
+				transportPannel.getStaffFrameView().getShopPanel().loadProduct();
+				// xoa cac row da mua
+				boolean[] check = new boolean[row];
+				for (int i = 0; i < row; i++) {
+					check[i] = (Boolean) transportPannel.getTable().getValueAt(i, 0);
+				}
+				for (int i = row - 1; i >= 0; i--) {
+					if (check[i])
+						transportPannel.getTblModel().removeRow(i);
+				}
+				// tạo các order và update các stock
+				for (Orders order : orders) {
+					new OrderDialogCustomer(transportPannel.getStaffFrameView(), order);
+				}
+			} catch (Exception e1) {
+				JOptionPane.showMessageDialog(transportPannel, "Faild!");
+			}
+		}
+	}
+
+}

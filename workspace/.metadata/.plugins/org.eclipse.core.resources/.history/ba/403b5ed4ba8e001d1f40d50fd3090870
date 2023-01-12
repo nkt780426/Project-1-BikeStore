@@ -1,0 +1,43 @@
+package controller.customer;
+
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+
+import view.customer.ProductPanel;
+
+public class ProductPanelController implements MouseListener {
+	private ProductPanel productPanel;
+
+	public ProductPanelController(ProductPanel productPanel) {
+		this.productPanel = productPanel;
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		productPanel.getCustomerFrameView().getShopPanel().getCardLayout()
+				.show(productPanel.getCustomerFrameView().getShopPanel(), "2");
+		productPanel.getCustomerFrameView().getShopPanel().getInformationPanel()
+				.initInformation(productPanel.getProduct());
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+
+	}
+
+}

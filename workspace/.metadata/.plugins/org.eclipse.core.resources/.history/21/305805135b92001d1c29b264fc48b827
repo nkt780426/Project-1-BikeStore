@@ -1,0 +1,74 @@
+package controller.login;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.nio.file.LinkOption;
+import java.util.ArrayList;
+
+import javax.swing.JComponent;
+import javax.swing.JOptionPane;
+
+import dao.AccountsDao;
+import dao.StaffsDao;
+import help.DataValidator;
+import model.Accounts;
+import model.Staffs;
+import view.admin.AdminFrameView;
+import view.login.LoginFrameView;
+import view.login.RegisterView;
+import view.staff.StaffFrameView;
+
+public class LoginFrameController implements ActionListener {
+	private LoginFrameView loginFrameView;
+	public static RegisterView registerView;
+
+	public LoginFrameController(LoginFrameView loginFrameView) {
+		super();
+		this.loginFrameView = loginFrameView;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == loginFrameView.btnSignUp) {
+			new RegisterView(loginFrameView, true);
+		}
+		if (e.getSource() == loginFrameView.btnSignIn) {
+			ArrayList<JComponent> list = new ArrayList<JComponent>();
+			list.add(loginFrameView.txtUsername);
+			list.add(loginFrameView.password);
+			if (DataValidator.checkEmpty(loginFrameView, list)) {
+				Accounts account = new Accounts();
+				account.setUsername(loginFrameView.txtUsername.getText());
+				account.setPassword(new String(loginFrameView.password.getPassword()));
+				// admin = true; customer = false
+				account.setPosition(loginFrameView.rdbAdmin.isSelected());
+				AccountsDao accountsDao = new AccountsDao();
+				if (accountsDao.checkAccount(account)) {
+					if (account.getStaffId() != null && !account.getPosition()) {
+						Staffs staff = new Staffs();
+						staff.setStaffId(account.getStaffId());
+						StaffsDao staffsDao = new StaffsDao();
+						staffsDao.find(staff);
+						if (staff.getActive()) {
+							ShareDataBetweenFrame.account = account;
+							ShareDataBetweenFrame.staff = staff;
+							loginFrameView.dispose();
+							new StaffFrameView();
+						} else {
+							JOptionPane.showMessageDialog(loginFrameView, "Your account hasn't been active by admin!");
+						}
+					} else {
+						ShareDataBetweenFrame.account = account;
+						loginFrameView.dispose();
+						new AdminFrameView();
+					}
+				} else {
+					JOptionPane.showMessageDialog(loginFrameView, "Account doesn't exist!");
+				}
+			} else {
+				JOptionPane.showMessageDialog(loginFrameView, "Username and Password cannot be left mark!");
+			}
+		}
+	}
+
+}

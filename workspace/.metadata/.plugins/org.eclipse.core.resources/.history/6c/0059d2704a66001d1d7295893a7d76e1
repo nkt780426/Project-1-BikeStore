@@ -1,0 +1,96 @@
+package view;
+
+import java.awt.Font;
+
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+import javax.swing.text.MaskFormatter;
+
+public class StaffView extends JDialog {
+	public StaffView() {
+		initComponent();
+		pack();
+		setVisible(true);
+		setTitle("Staff View");
+		setLocationRelativeTo(null);
+		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+	}
+
+	private void initComponent() {
+		// component
+		// label
+		Font font = new Font("Arial", Font.PLAIN, 16);
+		JLabel lbStaffId = new JLabel("StaffId");
+		lbStaffId.setFont(font);
+		JLabel lbStoreId = new JLabel("StoreId");
+		lbStoreId.setFont(font);
+		JLabel lbActive = new JLabel("Active");
+		lbActive.setFont(font);
+		JLabel lbManagerId = new JLabel("ManagerId");
+		lbManagerId.setFont(font);
+		JLabel lbFirstName = new JLabel("FirstName");
+		lbFirstName.setFont(font);
+		JLabel lbLastName = new JLabel("LastName");
+		lbLastName.setFont(font);
+		JLabel lbSex = new JLabel("Sex");
+		lbSex.setFont(font);
+		JLabel lbBirthDay = new JLabel("BirthDay");
+		lbBirthDay.setFont(font);
+		JLabel lbPhone = new JLabel("Phone");
+		lbPhone.setFont(font);
+		// textfield
+		JTextField txtStaffId = new JTextField(10);
+		txtStaffId.setFont(font);
+		JTextField txtStoreId = new JTextField(10);
+		txtStoreId.setFont(font);
+		JTextField txtActive = new JTextField(10);
+		txtActive.setFont(font);
+		JTextField txtManagerId = new JTextField(10);
+		txtManagerId.setFont(font);
+		JTextField txtFirstName = new JTextField(10);
+		txtFirstName.setFont(font);
+		JTextField txtLastName = new JTextField(10);
+		txtLastName.setFont(font);
+		JFormattedTextField ftxtBirthDay = new JFormattedTextField(createFormatter("##-##-####"));
+		ftxtBirthDay.setToolTipText("DD-MM-YYYY");
+		JTextField txtPhone = new JTextField(10);
+		txtPhone.setFont(font);
+		// radiobutton
+		JRadioButton rdbFemale = new JRadioButton("Female");
+		rdbFemale.setFont(font);
+		JRadioButton rdbMale = new JRadioButton("Female");
+		rdbMale.setFont(font);
+		// buttons
+		JButton btnOpen = new JButton("Open", new ImageIcon(getClass().getResource("/icon/open-file-icon16.png")));
+		btnOpen.setFont(font);
+		JButton btnBack = new JButton("Back", new ImageIcon(getClass().getResource("/icon/Go-back-icon16.png")));
+		btnBack.setFont(font);
+		JButton btnSave = new JButton("Save", new ImageIcon(getClass().getResource("/icon/Save-icon16.png")));
+		btnSave.setFont(font);
+		// component status
+
+		ButtonGroup buttonGroup = new ButtonGroup();
+		buttonGroup.add(rdbMale);
+		buttonGroup.add(rdbFemale);
+		rdbMale.setSelected(true);
+
+		// layout
+	}
+
+	private MaskFormatter createFormatter(String s) {
+		MaskFormatter formatter = null;
+		try {
+			formatter = new MaskFormatter(s);
+		} catch (java.text.ParseException exc) {
+			System.err.println("formatter is bad: " + exc.getMessage());
+		}
+		return formatter;
+	}
+
+}

@@ -1,0 +1,64 @@
+1671985461406	Rename local variable 'stock'
+1671985552837	Rename local variable 'stock'
+1671989950928	Rename field 'btnNew'
+1671990093869	Rename field 'btnAdd'
+1671993133036	Rename field 'btnNew'
+1671993151238	Rename method 'getBtnNew'
+1671993172505	Rename field 'btnAdd'
+1671993185995	Rename method 'getBtnAdd'
+1672167197813	Delete element
+1672167206695	Delete element
+1672200092026	Rename field 'txtAddress'
+1672200152092	Rename field 'getTxtAddress'
+1672215516397	Rename local variable 'birthDay'
+1672248815351	Delete element
+1672249351078	Rename local variable 'lbProductId'
+1672249361901	Rename local variable 'lbProductName'
+1672249415917	Rename field 'txtProductId'
+1672251563713	Rename local variable 'productId'
+1672251602654	Rename local variable 'product'
+1672251756487	Rename local variable 'categoryId'
+1672251929522	Rename local variable 'productId'
+1672251942287	Rename local variable 'product'
+1672251975628	Rename local variable 'productId'
+1672252119348	Rename local variable 'productId'
+1672252214861	Rename local variable 'productId'
+1672306059101	Rename local variable 'lbCategoryName'
+1672306237422	Rename local variable 'orderId'
+1672306944958	Rename local variable 'orderId'
+1672308178377	Move compilation units
+1672308183029	Delete element
+1672308230347	Move compilation units
+1672308239914	Rename package 'controller'
+1672308253040	Delete element
+1672308262690	Delete element
+1672330316569	Rename method 'initInfomation'
+1672332923293	Rename method 'initInformation'
+1672479091695	Delete element
+1672479743000	Rename type 'OrderDialog'
+1672479756396	Move compilation unit
+1672480309952	Rename type 'OrderDialogCustomer'
+1672480322720	Rename type 'OrderDialogController'
+1672480756420	Rename field 'orderDialog'
+1672481228647	Rename local variable 'orderDialog'
+1672486465043	Delete element
+1672487028691	Rename field 'btnSave'
+1672487657633	Rename field 'orderDialog'
+1672487663849	Rename local variable 'orderDialog'
+1672488356538	Rename method 'findOrder'
+1672488437625	Rename method 'findAllStoreHasProduct'
+1672495577208	Move compilation unit
+1672495582011	Move compilation unit
+1672495588777	Move compilation unit
+1672495891595	Move compilation unit
+1672497453985	Move compilation unit
+1672497575932	Rename method 'initCoponent'
+1672499394340	Rename type 'PurchasePanel'
+1672499402395	Rename field 'purchasePanel'
+1672499483710	Rename field 'btnPurchase'
+1672499667885	Rename field 'mnuiPurchase'
+1672499950325	Rename type 'ShoppingCartPannel'
+1672502426168	Rename method 'initInformation'
+1672502769024	Rename method 'allName'
+1672507102327	Rename type 'ProductPanel'
+1672511905727	Rename method 'initCoponent'

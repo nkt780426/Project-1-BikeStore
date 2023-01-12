@@ -1,0 +1,240 @@
+package controller.customer;
+
+import java.awt.Color;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.io.File;
+import java.io.IOException;
+import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileSystemView;
+
+import controller.login.ShareDataBetweenFrame;
+import dao.AccountsDao;
+import dao.CustomersDao;
+import help.DataValidator;
+import help.ImageAccept;
+import model.Accounts;
+import model.Customers;
+import view.customer.CustomerFrameView;
+import view.customer.PersonalPanel;
+
+public class PersonalPanelController implements ActionListener, FocusListener {
+	private PersonalPanel personalPanel;
+
+	public PersonalPanelController(PersonalPanel personalPanel) {
+		this.personalPanel = personalPanel;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == personalPanel.getBtnBack()) {
+			CustomerFrameView customerFrameView = personalPanel.getCustomerFrameView();
+			customerFrameView.getCardLayout().previous(customerFrameView.getPanelCenter());
+		}
+
+		if (e.getSource() == personalPanel.getBtnSave()) {
+
+			try {
+				// tao account
+				Accounts account = new Accounts();
+				account.setUsername(ShareDataBetweenFrame.account.getUsername());
+				account.setPassword(new String(personalPanel.getPassword().getPassword()));
+				account.setPosition(false);
+				account.setCustomerId(ShareDataBetweenFrame.account.getCustomerId());
+				AccountsDao accountsDao = new AccountsDao();
+				// tao customer
+				Customers customer = new Customers();
+				customer.setCustomerId(ShareDataBetweenFrame.customer.getCustomerId());
+				customer.setFirstName(personalPanel.getTxtFirstName().getText());
+				customer.setLastName(personalPanel.getTxtLastName().getText());
+				customer.setSex(personalPanel.getRdbMale().isSelected());
+				if (personalPanel.getFtxtBirthDay().getText().length() != 0) {
+					try {
+						SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+						sdf.setLenient(false);
+						java.util.Date date = sdf.parse(personalPanel.getFtxtBirthDay().getText());
+						Date birthDay = new Date(date.getTime());
+						customer.setBirthDay(birthDay);
+					} catch (ParseException e1) {
+						e1.printStackTrace();
+					}
+				}
+				customer.setPhone(personalPanel.getTxtPhone().getText());
+				if (personalPanel.getTxtEmail().getText().length() != 0) {
+					customer.setEmail(personalPanel.getTxtEmail().getText());
+				}
+				if (personalPanel.getTxtAddress().getText().length() != 0) {
+					customer.setAddress(personalPanel.getTxtAddress().getText());
+				}
+				customer.setCustomerIcon(personalPanel.getCustomerIcon());
+				CustomersDao customersDao = new CustomersDao();
+				if (accountsDao.update(account) > 0 && customersDao.update(customer) > 0) {
+					ShareDataBetweenFrame.account = account;
+					ShareDataBetweenFrame.customer = customer;
+					JOptionPane.showMessageDialog(personalPanel, "Success!");
+				} else {
+					JOptionPane.showMessageDialog(personalPanel, "Cann't update!");
+					account = ShareDataBetweenFrame.account;
+					customer = ShareDataBetweenFrame.customer;
+
+					// account
+					personalPanel.getTxtUsername().setText(account.getUsername());
+					personalPanel.getPassword().setText(account.getPassword());
+					personalPanel.getRePassword().setText(account.getPassword());
+
+					// infomation
+					personalPanel.getTxtFirstName().setText(customer.getFirstName());
+					personalPanel.getTxtLastName().setText(customer.getLastName());
+					if (customer.getSex()) {
+						personalPanel.getRdbMale().setSelected(true);
+					} else {
+						personalPanel.getRdbFemale().setSelected(true);
+					}
+					SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+					String dateFormat = sdf.format(customer.getBirthDay());
+					personalPanel.getFtxtBirthDay().setText(dateFormat);
+					personalPanel.getTxtPhone().setText(customer.getPhone());
+					personalPanel.getTxtEmail().setText(customer.getEmail());
+					personalPanel.getTxtAddress().setText(customer.getAddress());
+					if (customer.getCustomerIcon() != null) {
+						personalPanel.setCustomerIcon(customer.getCustomerIcon());
+						Image img;
+						try {
+							img = ImageAccept.createImageFromByteArray(personalPanel.getCustomerIcon(), "jpg");
+							Image resize = ImageAccept.resize(img, 100, 100);
+							ImageIcon icon = new ImageIcon(resize);
+							personalPanel.getLbIcon().setIcon(icon);
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
+					}
+				}
+
+			} catch (Exception e2) {
+				JOptionPane.showMessageDialog(personalPanel, e2.getMessage());
+			}
+
+		}
+		if (e.getSource() == personalPanel.getBtnOpen()) {
+			JFileChooser fileChooser = new JFileChooser(FileSystemView.getFileSystemView());
+			fileChooser.setFileFilter(new FileFilter() {
+
+				@Override
+				public String getDescription() {
+					return "Image File (*.jpg)";
+				}
+
+				@Override
+				public boolean accept(File f) {
+					if (f.isDirectory()) {
+						return true;
+					} else {
+						return f.getName().toLowerCase().endsWith(".jpg");
+					}
+				}
+			});
+			if (fileChooser.showOpenDialog(personalPanel) == JFileChooser.CANCEL_OPTION) {
+				return;
+			}
+			File file = fileChooser.getSelectedFile();
+			ImageIcon icon = new ImageIcon(file.getPath());
+			Image img = ImageAccept.resize(icon.getImage(), 100, 100);
+			ImageIcon resizeIcon = new ImageIcon(img);
+			personalPanel.getLbIcon().setIcon(resizeIcon);
+			try {
+				personalPanel.setCustomerIcon(ImageAccept.toByteArray(img, "jpg"));
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
+	}
+
+	@Override
+	public void focusGained(FocusEvent e) {
+		if (e.getSource() == personalPanel.getBtnSave()) {
+			ArrayList<JComponent> list = new ArrayList<JComponent>();
+			list.add(personalPanel.getTxtUsername());
+			list.add(personalPanel.getPassword());
+			list.add(personalPanel.getRePassword());
+			list.add(personalPanel.getTxtFirstName());
+			list.add(personalPanel.getTxtLastName());
+			list.add(personalPanel.getTxtPhone());
+			if (!DataValidator.checkEmpty(personalPanel, list)) {
+				JOptionPane.showMessageDialog(personalPanel, "Texts which be marked with *, cannot be left blank!");
+			}
+		}
+	}
+
+	@Override
+	public void focusLost(FocusEvent e) {
+		if (e.getSource() == personalPanel.getTxtUsername()) {
+			personalPanel.getTxtUsername().setText(personalPanel.getTxtUsername().getText().trim());
+			if (personalPanel.getTxtUsername().getText().length() != 0) {
+				DataValidator.checkUserName(this.personalPanel, personalPanel.getTxtUsername());
+			} else {
+				personalPanel.getTxtUsername().setBackground(Color.WHITE);
+			}
+		}
+		if (e.getSource() == personalPanel.getPassword()) {
+			if (personalPanel.getPassword().getPassword().length != 0) {
+				DataValidator.checkPassword(this.personalPanel, personalPanel.getPassword());
+			} else {
+				personalPanel.getPassword().setBackground(Color.WHITE);
+			}
+		}
+		if (e.getSource() == personalPanel.getRePassword()) {
+			if (personalPanel.getRePassword().getPassword().length != 0) {
+				if (!Arrays.equals(personalPanel.getRePassword().getPassword(),
+						personalPanel.getPassword().getPassword())) {
+					JOptionPane.showMessageDialog(personalPanel, "Password dosen't match", null,
+							JOptionPane.ERROR_MESSAGE);
+					personalPanel.getRePassword().setBackground(Color.RED);
+					personalPanel.getPassword().requestFocus();
+				} else {
+					personalPanel.getRePassword().setBackground(Color.WHITE);
+				}
+			} else {
+				personalPanel.getRePassword().setBackground(Color.WHITE);
+			}
+		}
+		if (e.getSource() == personalPanel.getTxtFirstName()) {
+			personalPanel.getTxtFirstName().setText(personalPanel.getTxtFirstName().getText().trim());
+		}
+		if (e.getSource() == personalPanel.getTxtLastName()) {
+			personalPanel.getTxtLastName().setText(personalPanel.getTxtLastName().getText().trim());
+		}
+		if (e.getSource() == personalPanel.getTxtPhone()) {
+			personalPanel.getTxtPhone().setText(personalPanel.getTxtPhone().getText().trim());
+			if (personalPanel.getTxtPhone().getText().length() != 0) {
+				DataValidator.checkPhone(personalPanel, personalPanel.getTxtPhone());
+			} else {
+				personalPanel.getTxtPhone().setBackground(Color.WHITE);
+			}
+		}
+		if (e.getSource() == personalPanel.getTxtEmail()) {
+			personalPanel.getTxtEmail().setText(personalPanel.getTxtEmail().getText().trim());
+			if (personalPanel.getTxtEmail().getText().length() != 0) {
+				DataValidator.checkEmail(personalPanel, personalPanel.getTxtEmail());
+			} else {
+				personalPanel.getTxtEmail().setBackground(Color.WHITE);
+			}
+		}
+		if (e.getSource() == personalPanel.getTxtAddress()) {
+			personalPanel.getTxtAddress().setText(personalPanel.getTxtAddress().getText().trim());
+		}
+	}
+
+}

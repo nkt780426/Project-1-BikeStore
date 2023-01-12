@@ -1,0 +1,27 @@
+1670403752463	Rename type 'StaffTable'
+1670403759229	Rename type 'ProductTable'
+1670403931109	Move compilation unit
+1670403940214	Move compilation units
+1670404497738	Move compilation unit
+1670406241086	Move compilation unit
+1670406262858	Delete element
+1670424976614	Rename type 'CustomerPanelController'
+1670425265042	Delete element
+1670425266503	Delete element
+1670432083571	Rename field 'btnSignUp'
+1670566141651	Move compilation unit
+1670566189484	Move compilation unit
+1670566194314	Move compilation unit
+1670604958107	Delete element
+1670605708467	Rename local variable 'btnSearch'
+1670691224857	Rename type 'BrandView'
+1670691232258	Rename type 'CategoryView'
+1670691242315	Rename type 'OrderView'
+1670691248819	Rename type 'ProductView'
+1670691255845	Rename type 'StaffView'
+1670691260738	Rename type 'StoreView'
+1670691274432	Rename type 'ProductsViewControler'
+1670694230072	Rename local variable 'lbBrandName'
+1670694240506	Rename local variable 'lbCategoryName'
+1670694302610	Rename field 'cbbBrandName'
+1670694309701	Rename field 'cbbCategoryName'

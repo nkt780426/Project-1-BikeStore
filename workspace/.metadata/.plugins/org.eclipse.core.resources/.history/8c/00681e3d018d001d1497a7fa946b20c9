@@ -1,0 +1,135 @@
+package controller.customer;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
+import javax.swing.JOptionPane;
+
+import dao.BrandsDao;
+import dao.CategoriesDao;
+import dao.ProductsDao;
+import dao.StocksDao;
+import model.Brands;
+import model.Categories;
+import view.customer.xong.ProductPanel;
+import view.customer.xong.ShopPanel;
+
+public class ShopPannelController implements ActionListener, ItemListener {
+	private ShopPanel shopPanel;
+
+	public ShopPannelController(ShopPanel shopPanel) {
+		this.shopPanel = shopPanel;
+	}
+
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+		if (e.getSource() == shopPanel.getCbbSortedBy()) {
+			switch (shopPanel.getCbbSortedBy().getSelectedIndex()) {
+			case 0:
+				break;
+			case 1:
+				Collections.sort(shopPanel.getProducts(), new Comparator<ProductPanel>() {
+
+					@Override
+					public int compare(ProductPanel o1, ProductPanel o2) {
+						Integer sold1 = o1.getSold();
+						Integer sold2 = o2.getSold();
+						return -(sold1.compareTo(sold2));
+					}
+				});
+				shopPanel.loadProduct();
+				break;
+			case 2:
+				Collections.sort(shopPanel.getProducts(), new Comparator<ProductPanel>() {
+
+					@Override
+					public int compare(ProductPanel o1, ProductPanel o2) {
+						BigDecimal listPrice1 = o1.getProduct().getListPrice();
+						BigDecimal listPrice2 = o2.getProduct().getListPrice();
+						return -(listPrice1.compareTo(listPrice2));
+					}
+				});
+				shopPanel.loadProduct();
+				break;
+			case 3:
+				Collections.sort(shopPanel.getProducts(), new Comparator<ProductPanel>() {
+
+					@Override
+					public int compare(ProductPanel o1, ProductPanel o2) {
+						BigDecimal listPrice1 = o1.getProduct().getListPrice();
+						BigDecimal listPrice2 = o2.getProduct().getListPrice();
+						return listPrice1.compareTo(listPrice2);
+					}
+				});
+				shopPanel.loadProduct();
+				break;
+			}
+		}
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == shopPanel.getBtnSearch()) {
+			try {
+				// trim input
+				shopPanel.getTxtProductName().setText(shopPanel.getTxtProductName().getText().trim());
+				shopPanel.getTxtStartPrice().setText(shopPanel.getTxtStartPrice().getText().trim());
+				shopPanel.getTxtEndPrice().setText(shopPanel.getTxtEndPrice().getText().trim());
+				shopPanel.getTxtYear().setText(shopPanel.getTxtYear().getText().trim());
+
+				// Loc id cac product thao man
+				String productName = shopPanel.getTxtProductName().getText();
+				String startPrice = shopPanel.getTxtStartPrice().getText();
+				String endPrice = shopPanel.getTxtEndPrice().getText();
+				Integer year = null;
+				if (shopPanel.getTxtYear().getText().length() > 0) {
+					year = Integer.valueOf(shopPanel.getTxtYear().getText());
+				}
+				Integer brandId = null;
+				if (shopPanel.getCbbBrand().getSelectedItem() != null) {
+					BrandsDao brandsDao = new BrandsDao();
+					Brands brand = new Brands();
+					brand.setBrandName(shopPanel.getCbbBrand().getSelectedItem().toString());
+					if (brandsDao.findByName(brand)) {
+						brandId = brand.getBrandId();
+					}
+				}
+				Integer categoryId = null;
+				if (shopPanel.getCbbCategory().getSelectedItem() != null) {
+					CategoriesDao categoriesDao = new CategoriesDao();
+					Categories category = new Categories();
+					category.setCategoryName(shopPanel.getCbbCategory().getSelectedItem().toString());
+					if (categoriesDao.findByName(category)) {
+						categoryId = category.getCategoryId();
+					}
+				}
+				ProductsDao productsDao = new ProductsDao();
+				ArrayList<Integer> productId = productsDao.find(productName, startPrice, endPrice, year, brandId,
+						categoryId);
+				shopPanel.getObjects().clear();
+				if (productId.size() != 0) {
+					StocksDao stocksDao = new StocksDao();
+					for (Integer integer : productId) {
+						shopPanel.getObjects().add(stocksDao.selectProductRemaingAndSoldFromStock(integer));
+					}
+				}
+				shopPanel.createProductPanel();
+				shopPanel.loadProduct();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+				JOptionPane.showMessageDialog(shopPanel.getCustomerFrameView(), "Incorect input");
+			}
+		}
+		if (e.getSource() == shopPanel.getBtnShoppingCart()) {
+			shopPanel.getCustomerFrameView().getCardLayout().show(shopPanel.getCustomerFrameView().getPanelCenter(),
+					"2");
+		}
+	}
+
+}

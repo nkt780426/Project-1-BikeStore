@@ -1,0 +1,33 @@
+package view.staff;
+
+import javax.swing.JDialog;
+
+@SuppressWarnings("serial")
+public class CustomerDialog extends JDialog {
+	private StaffFrameView staffFrameView;
+
+	public CustomerDialog(StaffFrameView staffFrameView) {
+		super(staffFrameView, true);
+		this.staffFrameView = staffFrameView;
+		initComponent();
+		initInformation();
+		pack();
+		setLocationRelativeTo(null);
+		setTitle("Order Dialog");
+		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		setEvent();
+		setVisible(true);
+	}
+
+	private void setEvent() {
+
+	}
+
+	private void initInformation() {
+
+	}
+
+	private void initComponent() {
+
+	}
+}
