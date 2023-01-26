@@ -25,26 +25,6 @@ public class StaffsTableController implements ActionListener, DocumentListener, 
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == staffsTable.getBtnNew()) {
-			new StaffDialog(adminFrameView, null);
-		}
-		if (e.getSource() == staffsTable.getBtnDelete()) {
-			int row = staffsTable.getTable().getSelectedRow();
-			int staffId = Integer.valueOf(staffsTable.getTable().getValueAt(row, 0).toString());
-			Staffs staff = new Staffs();
-			staff.setStaffId(staffId);
-			StaffsDao dao = new StaffsDao();
-			if (dao.delete(staff) > 0) {
-				staffsTable.loadDataToTable();
-				JOptionPane.showMessageDialog(adminFrameView, "Success!");
-			} else {
-				JOptionPane.showMessageDialog(adminFrameView, "Faild!");
-			}
-		}
-	}
-
-	@Override
 	public void insertUpdate(DocumentEvent e) {
 		staffsTable.sortAndFilter(staffsTable.getTxtFilter().getText());
 		staffsTable.getTblModel().fireTableDataChanged();
@@ -103,6 +83,23 @@ public class StaffsTableController implements ActionListener, DocumentListener, 
 	public void mouseExited(MouseEvent e) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == staffsTable.getBtnDelete()) {
+			int row = staffsTable.getTable().getSelectedRow();
+			int staffId = Integer.valueOf(staffsTable.getTable().getValueAt(row, 0).toString());
+			Staffs staff = new Staffs();
+			staff.setStaffId(staffId);
+			StaffsDao dao = new StaffsDao();
+			if (dao.delete(staff) > 0) {
+				staffsTable.loadDataToTable();
+				JOptionPane.showMessageDialog(adminFrameView, "Success!");
+			} else {
+				JOptionPane.showMessageDialog(adminFrameView, "Faild!");
+			}
+		}
 	}
 
 }

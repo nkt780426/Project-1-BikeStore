@@ -11,6 +11,7 @@ public class StaffsTable extends TablePanel<Staffs> {
 
 	public StaffsTable(AdminFrameView adminFrameView) {
 		super(adminFrameView);
+		super.getBtnNew().setVisible(false);
 		initTable();
 		loadDataToTable();
 		setEvent();
@@ -19,8 +20,6 @@ public class StaffsTable extends TablePanel<Staffs> {
 	@Override
 	public void setEvent() {
 		StaffsTableController staffsTableController = new StaffsTableController(this, super.getAdminFrameView());
-		super.getBtnNew().addActionListener(staffsTableController);
-		super.getBtnDelete().addActionListener(staffsTableController);
 		super.getTxtFilter().getDocument().addDocumentListener(staffsTableController);
 		super.getTable().addMouseListener(staffsTableController);
 	}

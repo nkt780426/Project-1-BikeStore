@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <qualifiedTypeNameHistroy>
-    <fullyQualifiedTypeName name="java.util.Random"/>
     <fullyQualifiedTypeName name="dao.OrdersDao"/>
     <fullyQualifiedTypeName name="dao.OrdersItemsDao"/>
     <fullyQualifiedTypeName name="model.OrderItems"/>
@@ -35,7 +34,6 @@
     <fullyQualifiedTypeName name="javax.swing.JPasswordField"/>
     <fullyQualifiedTypeName name="java.awt.Insets"/>
     <fullyQualifiedTypeName name="java.lang.Integer"/>
-    <fullyQualifiedTypeName name="view.login.RegisterView"/>
     <fullyQualifiedTypeName name="javax.swing.JDialog"/>
     <fullyQualifiedTypeName name="controller.admin.CustomerDialogController"/>
     <fullyQualifiedTypeName name="view.staff.CustomerCustomerDialog"/>
@@ -51,8 +49,6 @@
     <fullyQualifiedTypeName name="controller.staff.CustomerDialogController"/>
     <fullyQualifiedTypeName name="view.staff.CustomerDialog"/>
     <fullyQualifiedTypeName name="controller.login.ShareDataBetweenFrame"/>
-    <fullyQualifiedTypeName name="model.Staffs"/>
-    <fullyQualifiedTypeName name="dao.StaffsDao"/>
     <fullyQualifiedTypeName name="java.sql.Types"/>
     <fullyQualifiedTypeName name="java.util.ArrayList"/>
     <fullyQualifiedTypeName name="javax.swing.JComponent"/>
@@ -60,4 +56,8 @@
     <fullyQualifiedTypeName name="javax.naming.spi.DirStateFactory.Result"/>
     <fullyQualifiedTypeName name="java.nio.file.LinkOption"/>
     <fullyQualifiedTypeName name="javax.swing.JOptionPane"/>
+    <fullyQualifiedTypeName name="view.login.RegisterView"/>
+    <fullyQualifiedTypeName name="java.awt.event.ActionListener"/>
+    <fullyQualifiedTypeName name="model.Staffs"/>
+    <fullyQualifiedTypeName name="dao.StaffsDao"/>
 </qualifiedTypeNameHistroy>
